@@ -1,5 +1,5 @@
 // Licensed under GPL-3.0. See LICENSE.
-// swiftc App/Window/WindowFrameInteraction.swift scripts/tests/WindowFrameInteractionCheck.swift -o /tmp/nook-frame-check && /tmp/nook-frame-check
+// swiftc App/Window/WindowFrameInteraction.swift scripts/tests/WindowFrameInteractionCheck.swift -o /tmp/lelele-frame-check && /tmp/lelele-frame-check
 import AppKit
 
 @MainActor
@@ -84,7 +84,7 @@ struct WindowFrameInteractionCheck {
         region.performDoubleClick(in: window, action: "None")
         region.performDoubleClick(in: window, action: "unknown")
         precondition(window.zoomCalls == 1 && window.minimizeCalls == 1)
-        let name = "com.nook.frame-check.\(UUID().uuidString)"
+        let name = "com.lelele.frame-check.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: name)!
         defer { defaults.removePersistentDomain(forName: name) }
         defaults.set("None", forKey: "AppleActionOnDoubleClick")

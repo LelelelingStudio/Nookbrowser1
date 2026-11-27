@@ -1,12 +1,12 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  StageFooter.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 17/02/2026.
 //
 
-import NookDesign
+import LeleleBrowserDesign
 import SwiftUI
 
 struct StageFooter: View {
@@ -64,7 +64,7 @@ struct StageFooter: View {
                 .padding(.vertical, 12)
                 .padding(.horizontal, 24)
                 .background(.white)
-                .clipShape(NookDesign.Radius.shape(NookDesign.Radius.lg))
+                .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg))
             }
             .buttonStyle(ScaleButtonStyle())
             .disabled(isLoading)

@@ -1,6 +1,6 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
-//  swiftc Nook/Managers/AIManager/Tools/InteractiveElementsScript.swift scripts/tests/InteractiveElementsCheck.swift -o /tmp/ie-check && /tmp/ie-check
+//  swiftc LeleleBrowser/Managers/AIManager/Tools/InteractiveElementsScript.swift scripts/tests/InteractiveElementsCheck.swift -o /tmp/ie-check && /tmp/ie-check
 //
 //  The chat's getInteractiveElements list holds what the person is looking at before the rest
 //  of a long page, up to its limit. Runs the shipped script in an off-screen web view.
@@ -21,7 +21,7 @@ struct InteractiveElementsCheck {
         for i in 0..<120 { html += "<a href='/doc/\(i)' style='display:block;height:40px'>Doc \(i)</a>" }
         for i in 0..<10 { html += "<button type='button' style='display:block;height:40px'>Here \(i)</button>" }
         for i in 0..<60 { html += "<a href='/more/\(i)' style='display:block;height:40px'>More \(i)</a>" }
-        html += "<div><button type='button'>Nook test button</button></div>"
+        html += "<div><button type='button'>Lelele Browser test button</button></div>"
         html += "<button style='display:none'>Hidden</button></body>"
         await loaded.load(html, in: web)
 
@@ -45,11 +45,11 @@ struct InteractiveElementsCheck {
         precondition(!seen.contains("Hidden"), "hidden controls never listed")
 
         // The limit still cuts the rest; a filter or a larger limit reaches the control at the very end.
-        precondition(!seen.contains("Nook test button"), "below the fold and past the limit")
-        let filtered = texts(await run(filter: "nook test"))
-        precondition(filtered == ["Nook test button"], "filter")
+        precondition(!seen.contains("Lelele Browser test button"), "below the fold and past the limit")
+        let filtered = texts(await run(filter: "lelele test"))
+        precondition(filtered == ["Lelele Browser test button"], "filter")
         let wide = texts(await run(limit: 500))
-        precondition(wide.contains("Nook test button"), "larger limit")
+        precondition(wide.contains("Lelele Browser test button"), "larger limit")
 
         print("InteractiveElementsCheck passed")
         exit(0)

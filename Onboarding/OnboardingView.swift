@@ -1,16 +1,16 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  OnboardingView.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 19/02/2026.
 //
 
-import NookDesign
+import LeleleBrowserDesign
 import SwiftUI
 
 struct OnboardingView: View {
-    @Environment(\.nookSettings) var nookSettings
+    @Environment(\.leleleSettings) var leleleSettings
     @EnvironmentObject var browserManager: BrowserManager
     @ObservedObject private var extensionManager = ExtensionManager.shared
 
@@ -25,11 +25,11 @@ struct OnboardingView: View {
         ZStack {
             // A fixed dark backdrop: the stages draw white text. The old blur showed glass while
             // the window was key and plain white once it was not.
-            NookDesign.Surface.onboardingBackdrop
+            LeleleBrowserDesign.Surface.onboardingBackdrop
                 .overlay {
                     Image("noise_texture")
                         .resizable(resizingMode: .tile)
-                        .opacity(NookDesign.Surface.grainOpacity)
+                        .opacity(LeleleBrowserDesign.Surface.grainOpacity)
                         .blendMode(.overlay)
                 }
                 .ignoresSafeArea()
@@ -107,7 +107,7 @@ struct OnboardingView: View {
     private func advance() {
         guard currentStage < 4, !isFindingExtensions else { return }
         if currentStage == 3 {
-            nookSettings.didFinishOnboarding = true
+            leleleSettings.didFinishOnboarding = true
             return
         }
 

@@ -4,8 +4,8 @@ cd "$(dirname "$0")/../.."
 test_dir=$(mktemp -d)
 trap 'rm -rf "$test_dir"' EXIT
 # Compile the same model without the new indexes to seed an actual old store.
-sed '/#Index<HistoryEntity>/d' Packages/NookWeb/Sources/NookWeb/HistoryEntity.swift > "$test_dir/HistoryEntity.swift"
-xcrun swiftc -parse-as-library -module-name HistoryRegression "$test_dir/HistoryEntity.swift" Packages/NookWeb/Sources/NookWeb/HistoryManager.swift Packages/NookWeb/Sources/NookWeb/HistoryTextIndex.swift Packages/NookWeb/Sources/NookWeb/AutofillRanking.swift Packages/NookWeb/Sources/NookWeb/BrowserPerformance.swift scripts/tests/history-regression.swift -o "$test_dir/old"
+sed '/#Index<HistoryEntity>/d' Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/HistoryEntity.swift > "$test_dir/HistoryEntity.swift"
+xcrun swiftc -parse-as-library -module-name HistoryRegression "$test_dir/HistoryEntity.swift" Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/HistoryManager.swift Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/HistoryTextIndex.swift Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/AutofillRanking.swift Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/BrowserPerformance.swift scripts/tests/history-regression.swift -o "$test_dir/old"
 "$test_dir/old" "$test_dir/history.store" seed
-xcrun swiftc -parse-as-library -module-name HistoryRegression Packages/NookWeb/Sources/NookWeb/HistoryEntity.swift Packages/NookWeb/Sources/NookWeb/HistoryManager.swift Packages/NookWeb/Sources/NookWeb/HistoryTextIndex.swift Packages/NookWeb/Sources/NookWeb/AutofillRanking.swift Packages/NookWeb/Sources/NookWeb/BrowserPerformance.swift scripts/tests/history-regression.swift -o "$test_dir/new"
+xcrun swiftc -parse-as-library -module-name HistoryRegression Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/HistoryEntity.swift Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/HistoryManager.swift Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/HistoryTextIndex.swift Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/AutofillRanking.swift Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/BrowserPerformance.swift scripts/tests/history-regression.swift -o "$test_dir/new"
 "$test_dir/new" "$test_dir/history.store"

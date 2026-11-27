@@ -1,5 +1,5 @@
 // Licensed under GPL-3.0. See LICENSE.
-// swiftc Nook/Models/AI/MCPModels.swift scripts/tests/MCPToolFunctionNameCheck.swift -o /tmp/mcpname && /tmp/mcpname
+// swiftc LeleleBrowser/Models/AI/MCPModels.swift scripts/tests/MCPToolFunctionNameCheck.swift -o /tmp/mcpname && /tmp/mcpname
 import Foundation
 
 @main

@@ -1,5 +1,5 @@
 // Licensed under GPL-3.0. See LICENSE.
-// swiftc Nook/Managers/LinkPreview/LinkPreviewExtract.swift scripts/tests/LinkPreviewExtractCheck.swift -o /tmp/lp && /tmp/lp
+// swiftc LeleleBrowser/Managers/LinkPreview/LinkPreviewExtract.swift scripts/tests/LinkPreviewExtractCheck.swift -o /tmp/lp && /tmp/lp
 
 import Foundation
 

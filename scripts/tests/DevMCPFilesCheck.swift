@@ -1,11 +1,11 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  DevMCPFilesCheck.swift
-//  Nook
+//  LeleleBrowser
 //
 //  DevMCP may only write under its root. Compiles the shipped source directly:
 //
-//    swiftc Nook/Managers/DevMCPServer/DevMCPFiles.swift Packages/NookWeb/Sources/NookWeb/Quarantine.swift \
+//    swiftc LeleleBrowser/Managers/DevMCPServer/DevMCPFiles.swift Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/Quarantine.swift \
 //           scripts/tests/DevMCPFilesCheck.swift \
 //           -o /tmp/devmcp-files-check && /tmp/devmcp-files-check
 //

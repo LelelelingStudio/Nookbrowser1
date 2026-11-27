@@ -1,13 +1,13 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  GenericSuggestionItem.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 18/08/2025.
 //
 
 import SwiftUI
-import NookDesign
+import LeleleBrowserDesign
 
 struct GenericSuggestionItem: View {
     let icon: Image
@@ -24,10 +24,10 @@ struct GenericSuggestionItem: View {
                     .foregroundStyle(isSelected ? .white : .secondary)
             }
             .frame(width: 24, height: 24)
-            .clipShape(NookDesign.Radius.shape(NookDesign.Radius.xs))
+            .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.xs))
 
             Text(text)
-                .font(NookDesign.Font.label)
+                .font(LeleleBrowserDesign.Font.label)
                 .foregroundStyle(isSelected ? .white : .primary)
                 .lineLimit(1)
                 .truncationMode(.tail)

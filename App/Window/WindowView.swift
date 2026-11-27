@@ -1,7 +1,7 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  WindowView.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 30/07/2025.
 //  Updated by Aether Aurelia on 15/11/2025.
@@ -9,10 +9,10 @@
 
 import AppKit
 import SwiftUI
-import NookDesign
-import NookTabsCore
-import NookWeb
-import NookUI
+import LeleleBrowserDesign
+import LeleleBrowserTabsCore
+import LeleleBrowserWeb
+import LeleleBrowserUI
 
 /// Main window view that orchestrates the browser UI layout
 struct WindowView: View {
@@ -24,7 +24,7 @@ struct WindowView: View {
     @Environment(\.colorScheme) private var systemColorScheme
     @Environment(AIService.self) private var aiService
     @Environment(TabOrganizerManager.self) private var tabOrganizerManager
-    @Environment(\.nookSettings) var nookSettings
+    @Environment(\.leleleSettings) var leleleSettings
     @Environment(\.openSettings) private var openSettings
     @StateObject private var hoverSidebarManager = HoverSidebarManager()
     @Environment(\.colorScheme) var colorScheme
@@ -82,7 +82,7 @@ struct WindowView: View {
             TabSwitcherOverlay()
                 .environment(windowState)
                 .environment(tabs)
-                .animation(NookDesign.Motion.quick, value: windowState.tabSwitcher == nil)
+                .animation(LeleleBrowserDesign.Motion.quick, value: windowState.tabSwitcher == nil)
                 .zIndex(9700)
         }
         // A download opened in place, in the window that is in front.
@@ -138,7 +138,7 @@ struct WindowView: View {
                     ShortcutConflictToast(
                         shortcut: conflictInfo.keyCombination.displayString,
                         websiteName: conflictInfo.websiteName,
-                        nookActionName: conflictInfo.nookActionName
+                        leleleActionName: conflictInfo.leleleActionName
                     )
                         .environment(windowState)
                 }
@@ -174,7 +174,7 @@ struct WindowView: View {
             browserManager.openSettingsAction = openSettings
             hoverSidebarManager.attach(browserManager: browserManager)
             hoverSidebarManager.windowRegistry = windowRegistry
-            hoverSidebarManager.nookSettings = nookSettings
+            hoverSidebarManager.leleleSettings = leleleSettings
             hoverSidebarManager.start()
             applyAccent(spaceAccentHex)
         }
@@ -220,7 +220,7 @@ struct WindowView: View {
         .environmentObject(browserManager.splitManager)
         .environmentObject(hoverSidebarManager)
         .preferredColorScheme(resolvedColorScheme)
-        .environment(\.nookUsesDefaultSpaceTheme, spaceTheme == nil)
+        .environment(\.leleleUsesDefaultSpaceTheme, spaceTheme == nil)
     }
 
     /// Accent of the space this window shows; nil for private windows, which keep their own look.
@@ -243,7 +243,7 @@ struct WindowView: View {
     }
 
     private var resolvedColorScheme: ColorScheme? {
-        switch nookSettings.appearanceMode {
+        switch leleleSettings.appearanceMode {
         case .light: return .light
         case .dark: return .dark
         case .system: return nil  // Follow system appearance
@@ -266,26 +266,26 @@ struct WindowView: View {
 
         SpaceChromeBackground(theme: spaceTheme, accent: accent, isActive: isActive)
             .spaceThemeAppearance(spaceTheme)
-            .animation(NookDesign.Motion.standard, value: windowState.spaceID)
-            .animation(NookDesign.Motion.standard, value: windowState.spaceDraftTheme == nil)
+            .animation(LeleleBrowserDesign.Motion.standard, value: windowState.spaceID)
+            .animation(LeleleBrowserDesign.Motion.standard, value: windowState.spaceDraftTheme == nil)
             // Private windows tint all chrome so they are never mistaken for a regular window.
-            .overlay(windowState.isIncognito ? NookDesign.Surface.privateTint : Color.clear)
+            .overlay(windowState.isIncognito ? LeleleBrowserDesign.Surface.privateTint : Color.clear)
             // So is the Agent space, with its fixed gradient.
-            .overlay(Rectangle().fill(NookDesign.Surface.agentGradient).opacity(showsAgentSpace && windowState.spaceDraftTheme == nil ? NookDesign.Surface.agentChromeOpacity : 0))
+            .overlay(Rectangle().fill(LeleleBrowserDesign.Surface.agentGradient).opacity(showsAgentSpace && windowState.spaceDraftTheme == nil ? LeleleBrowserDesign.Surface.agentChromeOpacity : 0))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .backgroundDraggable()
             .environment(windowState)
-            .animation(NookDesign.Motion.standard, value: isActive)
+            .animation(LeleleBrowserDesign.Motion.standard, value: isActive)
     }
 
     @ViewBuilder
     private func SidebarWebViewStack() -> some View {
         let aiVisible = windowState.isSidebarAIChatVisible
-        let aiAppearsOnTrailingEdge = nookSettings.sidebarPosition == .left
+        let aiAppearsOnTrailingEdge = leleleSettings.sidebarPosition == .left
         let sidebarVisible = windowState.isSidebarVisible
-        let sidebarOnRight = nookSettings.sidebarPosition == .right
-        let sidebarOnLeft = nookSettings.sidebarPosition == .left
-        let bordered = !nookSettings.hideWebContentBorder
+        let sidebarOnRight = leleleSettings.sidebarPosition == .right
+        let sidebarOnLeft = leleleSettings.sidebarPosition == .left
+        let bordered = !leleleSettings.hideWebContentBorder
 
         HStack(spacing: 0) {
             if aiAppearsOnTrailingEdge {
@@ -306,21 +306,21 @@ struct WindowView: View {
         }
         // Apply padding similar to regular sidebar: remove padding when sidebar/AI is visible on that side
         // When sidebar is on left, AI appears on right (trailing); when sidebar is on right, AI appears on left (leading)
-        .padding(.trailing, !bordered || (sidebarVisible && sidebarOnRight) || (aiVisible && sidebarOnLeft) ? 0 : NookDesign.Chrome.pageInset)
-        .padding(.leading, !bordered || (sidebarVisible && sidebarOnLeft) || (aiVisible && sidebarOnRight) ? 0 : NookDesign.Chrome.pageInset)
+        .padding(.trailing, !bordered || (sidebarVisible && sidebarOnRight) || (aiVisible && sidebarOnLeft) ? 0 : LeleleBrowserDesign.Chrome.pageInset)
+        .padding(.leading, !bordered || (sidebarVisible && sidebarOnLeft) || (aiVisible && sidebarOnRight) ? 0 : LeleleBrowserDesign.Chrome.pageInset)
     }
 
     @ViewBuilder
     private func SpacesSidebar() -> some View {
         if windowState.isSidebarVisible {
             SpacesSideBarView()
-                .environment(\.nookBaseColorScheme, systemColorScheme)
+                .environment(\.leleleBaseColorScheme, systemColorScheme)
                 .spaceThemeAppearance(spaceTheme)
                 // Becomes its column in the library as the library comes out, as in Arc.
                 .modifier(LibraryFade())
                 .scrollIndicators(windowState.isSidebarResizeHovered ? .hidden : .automatic)
                 .frame(width: windowState.sidebarWidth)
-                .overlay(alignment: nookSettings.sidebarPosition == .left ? .trailing : .leading) {
+                .overlay(alignment: leleleSettings.sidebarPosition == .left ? .trailing : .leading) {
                     // The expanded address panel extends across this edge. Suspend the
                     // native resize target so it cannot paint or steal clicks over the panel.
                     if !windowState.isAddressEditing {
@@ -339,9 +339,9 @@ struct WindowView: View {
 
     @ViewBuilder
     private func WebContent() -> some View {
-        let cornerRadius = NookDesign.Radius.page
-        let hasTopBar = nookSettings.topBarAddressView
-        let bordered = !nookSettings.hideWebContentBorder
+        let cornerRadius = LeleleBrowserDesign.Radius.page
+        let hasTopBar = leleleSettings.topBarAddressView
+        let bordered = !leleleSettings.hideWebContentBorder
 
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
@@ -378,7 +378,7 @@ struct WindowView: View {
                             PortraitCaptureView(session: session)
                                 .environmentObject(browserManager)
                                 .environment(windowState)
-                                .padding(NookDesign.Spacing.md)
+                                .padding(LeleleBrowserDesign.Spacing.md)
                                 .transition(.scale(scale: 0.92, anchor: .topTrailing).combined(with: .opacity))
                                 .zIndex(2600)
                         }
@@ -386,7 +386,7 @@ struct WindowView: View {
                 }
                 // The loading indicator sits in the window's top inset, outside the frame
                 // whose edges cast the shadow.
-                .nookWebPageShadow(in: NookDesign.Radius.shape(cornerRadius), enabled: bordered)
+                .leleleWebPageShadow(in: LeleleBrowserDesign.Radius.shape(cornerRadius), enabled: bordered)
             }
 
             // No inset to sit in, so it floats over the page's top edge.
@@ -402,13 +402,13 @@ struct WindowView: View {
                     .allowsHitTesting(false)
             }
         }
-        .padding(.bottom, bordered ? NookDesign.Chrome.pageInset : 0)
+        .padding(.bottom, bordered ? LeleleBrowserDesign.Chrome.pageInset : 0)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder
     private func AISidebar() -> some View {
-        let handleAlignment: Alignment = nookSettings.sidebarPosition == .left ? .leading : .trailing
+        let handleAlignment: Alignment = leleleSettings.sidebarPosition == .left ? .leading : .trailing
         
         DevPanelColumn()
             .frame(width: windowState.aiSidebarWidth)
@@ -419,12 +419,12 @@ struct WindowView: View {
                     .environment(windowState)
             }
             .transition(
-                .move(edge: nookSettings.sidebarPosition == .left ? .trailing : .leading)
+                .move(edge: leleleSettings.sidebarPosition == .left ? .trailing : .leading)
                 .combined(with: .opacity)
             )
             .environmentObject(browserManager)
             .environment(windowState)
-            .environment(nookSettings)
+            .environment(leleleSettings)
     }
 
     private func websiteColumnClipShape(cornerRadius: CGFloat, hasTopBar: Bool) -> AnyShape {

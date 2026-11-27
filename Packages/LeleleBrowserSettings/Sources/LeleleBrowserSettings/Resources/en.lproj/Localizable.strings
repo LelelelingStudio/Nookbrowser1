@@ -1,0 +1,30 @@
+/* English source strings. Keys are the English text itself. */
+
+"Language" = "Language";
+"Follow System" = "Follow System";
+"English" = "English";
+"简体中文" = "简体中文";
+"Lelele Browser follows your system language by default. You can override it here." = "Lelele Browser follows your system language by default. You can override it here.";
+
+"Tab Management" = "Tab Management";
+"Performance" = "Performance";
+"Performance Mode" = "Performance";
+"Power Saving" = "Power Saving";
+"Standard" = "Standard";
+"Aggressively unloads tabs to minimize memory and battery usage. Best for laptops on battery." = "Aggressively unloads tabs to minimize memory and battery usage. Best for laptops on battery.";
+"Balanced tab management for everyday browsing." = "Balanced tab management for everyday browsing.";
+"Keeps tabs loaded longer for power users with many tabs open." = "Keeps tabs loaded longer for power users with many tabs open.";
+"Unload All Inactive Tabs" = "Unload All Inactive Tabs";
+"On Startup" = "On Startup";
+"Default search engine" = "Default search engine";
+"Automatic Memory Saver" = "Automatic Memory Saver";
+"Switch to Memory Saver automatically when Low Power Mode is active." = "Switch to Memory Saver automatically when Low Power Mode is active.";
+"Loaded tabs: %lld" = "Loaded tabs: %lld";
+"Links from other apps" = "Links from other apps";
+"Allow lelele:// links" = "Allow lelele:// links";
+"Lets launchers like Raycast and Alfred open pages, search and switch spaces." = "Lets launchers like Raycast and Alfred open pages, search and switch spaces.";
+"Security" = "Security";
+"Warn before opening a site over HTTP" = "Warn before opening a site over HTTP";
+"Lelele Browser always tries HTTPS first. Ask before opening a site that only works over HTTP." = "Lelele Browser always tries HTTPS first. Ask before opening a site that only works over HTTP.";
+"About" = "About";
+"Version" = "Version";

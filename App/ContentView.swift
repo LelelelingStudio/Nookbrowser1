@@ -1,7 +1,7 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  ContentView.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 28/07/2025.
 //  Updated by Aether Aurelia on 15/11/2025.
@@ -9,7 +9,7 @@
 
 import SwiftUI
 import AppKit
-import NookWeb
+import LeleleBrowserWeb
 
 struct ContentView: View {
     @EnvironmentObject var browserManager: BrowserManager
@@ -121,7 +121,7 @@ private struct WindowFocusBridge: NSViewRepresentable {
                 }
             }
 
-            // onDisappear does not fire for windows Nook creates itself (they outlive close),
+            // onDisappear does not fire for windows LeleleBrowser creates itself (they outlive close),
             // so a closed window would stay registered and reopen on the next launch.
             closeObserver = NotificationCenter.default.addObserver(
                 forName: NSWindow.willCloseNotification,

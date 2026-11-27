@@ -1,12 +1,12 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  ImportStage.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 19/02/2026.
 //
 
-import NookDesign
+import LeleleBrowserDesign
 import SwiftUI
 
 enum Browsers {
@@ -23,7 +23,7 @@ struct ImportStage: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            Text("Transition to Nook")
+            Text("Transition to Lelele Browser")
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(.white)
             HStack(spacing: 24) {
@@ -45,7 +45,7 @@ struct ImportStage: View {
                     .foregroundStyle(selectedBrowser == browser ? .black : .white)
                     .frame(width: 44, height: 44)
                     .background(selectedBrowser == browser ? .white : .white.opacity(0.2))
-                    .clipShape(NookDesign.Radius.shape(NookDesign.Radius.lg))
+                    .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg))
                 Text(name)
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.white.opacity(0.8))

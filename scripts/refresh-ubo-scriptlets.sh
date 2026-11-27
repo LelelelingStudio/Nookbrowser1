@@ -3,12 +3,12 @@
 # manifest. Pass a commit SHA to pin a specific one, otherwise takes the newest
 # commit that touched src/js/resources.
 #
-# These bodies are GPL-3.0 and are not Nook's. The iOS target must not ship them;
+# These bodies are GPL-3.0 and are not LeleleBrowser's. The iOS target must not ship them;
 # see the #if os(iOS) in ScriptletResources.swift.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-DEST="Packages/NookBlocker/ThirdParty/ubo-scriptlets"
+DEST="Packages/LeleleBrowserBlocker/ThirdParty/ubo-scriptlets"
 REPO="https://raw.githubusercontent.com/gorhill/uBlock"
 
 SHA="${1:-$(curl -fsSL "https://api.github.com/repos/gorhill/uBlock/commits?path=src/js/resources&per_page=1" \
@@ -36,4 +36,4 @@ node scripts/build-scriptlets.mjs
 node scripts/build-redirects.mjs
 node scripts/check-redirects.mjs
 node scripts/check-scriptlet-globals.mjs
-echo "Now run: cd Nook/ThirdParty/AdblockRustFFI && cargo test --test real_lists_scriptlets"
+echo "Now run: cd LeleleBrowser/ThirdParty/AdblockRustFFI && cargo test --test real_lists_scriptlets"

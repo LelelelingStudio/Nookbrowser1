@@ -1,13 +1,13 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  TabLayoutStage.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 17/02/2026.
 //
 
-import NookSettings
-import NookDesign
+import LeleleBrowserSettings
+import LeleleBrowserDesign
 import SwiftUI
 
 struct TabLayoutStage: View {
@@ -35,9 +35,9 @@ struct TabLayoutStage: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 180, height: 140)
-                    .clipShape(NookDesign.Radius.shape(NookDesign.Radius.md))
+                    .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.md))
                     .overlay {
-                        NookDesign.Radius.shape(NookDesign.Radius.md)
+                        LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.md)
                             .stroke(.black.opacity(0.2), lineWidth: selectedLayout == layout ? 4 : 0)
                     }
                     .animation(.easeInOut(duration: 0.1), value: selectedLayout == layout)

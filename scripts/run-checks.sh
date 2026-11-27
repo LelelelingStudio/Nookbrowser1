@@ -1,9 +1,9 @@
 #!/bin/bash
 # Runs every check in the repo and exits non-zero if any fails: the Swift check programs, the
-# NookTabsCore package tests, the Rust crate tests and the node scripts.
+# LeleleBrowserTabsCore package tests, the Rust crate tests and the node scripts.
 #   scripts/run-checks.sh [name ...]   only the checks whose name contains one of the words
-#   NOOK_CHECKS_LOCAL=1                also run the checks that cannot run unattended
-#   NOOK_CHECKS_JOBS=n                 parallel compiles (default: one per core)
+#   LELELE_CHECKS_LOCAL=1                also run the checks that cannot run unattended
+#   LELELE_CHECKS_JOBS=n                 parallel compiles (default: one per core)
 # Each Swift check's command comes from the swiftc line in its header comment; only the output
 # path is rewritten, and the compiles run in parallel before the checks run one at a time.
 set -u
@@ -22,11 +22,11 @@ if [ "${1:-}" = "--compile" ]; then
   exit 0
 fi
 
-work=$(mktemp -d "${TMPDIR:-/tmp}/nook-checks.XXXXXX") || exit 2
+work=$(mktemp -d "${TMPDIR:-/tmp}/lelele-checks.XXXXXX") || exit 2
 trap 'rm -rf "$work"' EXIT
 mkdir -p "$work/cmd" "$work/u" "$work/bin"
 export WORK=$work
-njobs=${NOOK_CHECKS_JOBS:-$(sysctl -n hw.ncpu 2>/dev/null || echo 2)}
+njobs=${LELELE_CHECKS_JOBS:-$(sysctl -n hw.ncpu 2>/dev/null || echo 2)}
 pass=0 fail=0 skip=0 failed=""
 started=$(date +%s)
 
@@ -84,11 +84,11 @@ extra() {
   else finish FAIL "$name" "$(rc_detail $rc "$limit")" "$log"; fi
 }
 
-# local_only NAME REASON TOOL CMD...: a check that cannot run unattended, skipped unless NOOK_CHECKS_LOCAL=1.
+# local_only NAME REASON TOOL CMD...: a check that cannot run unattended, skipped unless LELELE_CHECKS_LOCAL=1.
 local_only() {
   local name=$1 reason=$2; shift 2
   want "$name" || return 0
-  if [ -z "${NOOK_CHECKS_LOCAL:-}" ]; then finish SKIP "$name" "local-only: $reason"; return 0; fi
+  if [ -z "${LELELE_CHECKS_LOCAL:-}" ]; then finish SKIP "$name" "local-only: $reason"; return 0; fi
   extra "$name" 600 "$@"
 }
 
@@ -164,12 +164,12 @@ for id in $units; do
 done
 
 # ---- everything else ----
-extra "Packages/NookTabsCore swift test" 600 swift \
-  swift test --package-path Packages/NookTabsCore --scratch-path "$root/build/NookTabsCore-spm"
-# Same target dir as AdblockRustFFI/build.sh: a target/ under Nook/ breaks the Xcode build.
-extra "Nook/ThirdParty/AdblockRustFFI cargo test" 900 cargo \
+extra "Packages/LeleleBrowserTabsCore swift test" 600 swift \
+  swift test --package-path Packages/LeleleBrowserTabsCore --scratch-path "$root/build/LeleleBrowserTabsCore-spm"
+# Same target dir as AdblockRustFFI/build.sh: a target/ under LeleleBrowser/ breaks the Xcode build.
+extra "LeleleBrowser/ThirdParty/AdblockRustFFI cargo test" 900 cargo \
   env CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$root/build/AdblockRustFFI-target}" \
-  cargo test --release --locked --manifest-path Nook/ThirdParty/AdblockRustFFI/Cargo.toml
+  cargo test --release --locked --manifest-path LeleleBrowser/ThirdParty/AdblockRustFFI/Cargo.toml
 for s in check-redirects check-scriptlet-globals check-extension-compat; do
   extra "scripts/$s.mjs" 120 node node "scripts/$s.mjs"
 done

@@ -1,7 +1,7 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  AppDelegate.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Application lifecycle delegate handling app termination, URL events, and Sparkle updates
 //
@@ -10,7 +10,7 @@ import AppKit
 import OSLog
 import Sparkle
 import WebKit
-import NookWeb
+import LeleleBrowserWeb
 
 /// Handles application-level lifecycle events and coordinates app termination
 ///
@@ -28,7 +28,7 @@ import NookWeb
 /// 5. Replies with terminate approval
 class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
     private static let log = Logger(
-        subsystem: Bundle.main.bundleIdentifier ?? "Nook", category: "AppTermination")
+        subsystem: Bundle.main.bundleIdentifier ?? "Lelele Browser", category: "AppTermination")
 
     // TEMPORARY: Reference to BrowserManager for coordinating browser operations
     // TODO: Replace with direct access to independent managers (TabsController, etc.)
@@ -189,7 +189,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
         }
     }
 
-    /// Whether a mouse event landed inside page content rather than Nook's own chrome.
+    /// Whether a mouse event landed inside page content rather than LeleleBrowser's own chrome.
     /// Used to leave middle clicks over a page to the page's link handler, and to keep the
     /// side buttons over a page on history.
     private static func isOverWebContent(_ event: NSEvent) -> Bool {
@@ -228,7 +228,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
         let start = CFAbsoluteTimeGetCurrent()
         if let manager = browserManager {
             manager.tabs.flushSync()
-            manager.nookSettings?.flushBoosts()
+            manager.leleleSettings?.flushBoosts()
             do {
                 try manager.modelContext.save()
             } catch {
@@ -265,11 +265,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
             return
         }
 
-        // nook:// commands come only through this event, and never from Nook itself.
-        if url.scheme?.lowercased() == "nook" {
+        // lelele:// commands come only through this event, and never from LeleleBrowser itself.
+        if url.scheme?.lowercased() == "lelele" {
             let sender = event.attributeDescriptor(forKeyword: AEKeyword(keySenderPIDAttr))?.int32Value
             guard sender != getpid() else {
-                AppDelegate.log.info("Ignored nook:// link sent by Nook itself")
+                AppDelegate.log.info("Ignored lelele:// link sent by Lelele Browser itself")
                 return
             }
             handleIncoming(url: url)
@@ -296,8 +296,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SPUUpdaterDelegate {
             return
         }
         Task { @MainActor in
-            if url.scheme?.lowercased() == "nook" {
-                manager.handleNookURL(url)
+            if url.scheme?.lowercased() == "lelele" {
+                manager.handleLeleleBrowserURL(url)
             } else {
                 manager.presentExternalURL(url)
             }

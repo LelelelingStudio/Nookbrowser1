@@ -1,15 +1,15 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  HistorySuggestionItem.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 18/08/2025.
 //
 
 import SwiftUI
-import NookDesign
-import NookWeb
-import NookUI
+import LeleleBrowserDesign
+import LeleleBrowserWeb
+import LeleleBrowserUI
 
 struct HistorySuggestionItem: View {
     let entry: HistoryEntry
@@ -37,21 +37,21 @@ struct HistorySuggestionItem: View {
             }
             .frame(width: 24, height: 24)
             .background(colors.faviconBackground)
-            .clipShape(NookDesign.Radius.shape(NookDesign.Radius.xs))
+            .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.xs))
             
             HStack(spacing: 4) {
                 Text(entry.displayTitle)
-                    .font(NookDesign.Font.label)
+                    .font(LeleleBrowserDesign.Font.label)
                     .foregroundStyle(colors.titleColor)
                     .lineLimit(1)
                     .truncationMode(.tail)
                 
                 Text("-")
-                    .font(NookDesign.Font.label)
+                    .font(LeleleBrowserDesign.Font.label)
                     .foregroundStyle(colors.urlColor)
                 
                 Text(entry.displayURL)
-                    .font(NookDesign.Font.label)
+                    .font(LeleleBrowserDesign.Font.label)
                     .foregroundStyle(colors.urlColor)
                     .lineLimit(1)
                     .truncationMode(.tail)
@@ -60,7 +60,7 @@ struct HistorySuggestionItem: View {
         }
         .frame(maxWidth: .infinity)
         .onHoverTracking { hovering in
-            withAnimation(NookDesign.Motion.hover(hovering)) {
+            withAnimation(LeleleBrowserDesign.Motion.hover(hovering)) {
                 isHovered = hovering
             }
         }
@@ -103,6 +103,6 @@ private struct ColorConfig {
     }
     
     var faviconBackground: Color {
-        return isSelected ? .white : NookDesign.Surface.fill
+        return isSelected ? .white : LeleleBrowserDesign.Surface.fill
     }
 }

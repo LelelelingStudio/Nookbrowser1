@@ -1,7 +1,7 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  SpacesSideBarView.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 30/07/2025.
 //  Refactored by Aether on 15/11/2025.
@@ -11,19 +11,19 @@ import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 import Sparkle
-import NookDesign
-import NookSettings
-import NookTabsCore
-import NookWeb
-import NookUI
+import LeleleBrowserDesign
+import LeleleBrowserSettings
+import LeleleBrowserTabsCore
+import LeleleBrowserWeb
+import LeleleBrowserUI
 
 struct SpacesSideBarView: View {
     @EnvironmentObject var browserManager: BrowserManager
     @Environment(TabsController.self) private var tabs
     @Environment(BrowserWindowState.self) private var windowState
-    @Environment(\.nookBaseColorScheme) private var baseColorScheme
+    @Environment(\.leleleBaseColorScheme) private var baseColorScheme
     @Environment(WindowRegistry.self) private var windowRegistry
-    @Environment(\.nookSettings) var nookSettings
+    @Environment(\.leleleSettings) var leleleSettings
     @Environment(CommandPalette.self) var commandPalette
     @Environment(TabOrganizerManager.self) var tabOrganizerManager
 
@@ -54,8 +54,8 @@ struct SpacesSideBarView: View {
             // Beside the sidebar, low down, so the panel covers the page rather than the tabs.
             .popover(
                 isPresented: $showThemeEditor,
-                attachmentAnchor: .point(UnitPoint(x: nookSettings.sidebarPosition == .left ? 1 : 0, y: 0.7)),
-                arrowEdge: nookSettings.sidebarPosition == .left ? .trailing : .leading
+                attachmentAnchor: .point(UnitPoint(x: leleleSettings.sidebarPosition == .left ? 1 : 0, y: 0.7)),
+                arrowEdge: leleleSettings.sidebarPosition == .left ? .trailing : .leading
             ) {
                 if let space = themeableSpace {
                     SpaceThemeEditor(space: space)
@@ -78,7 +78,7 @@ struct SpacesSideBarView: View {
             // The library floats over the window (`LibraryOverlay`), so the sidebar keeps its content.
             if windowState.spaceDraftTheme != nil {
                 SpaceCreationSidebar()
-                    .padding(.top, nookSettings.sidebarPosition == .left ? NookDesign.Spacing.sidebarTop : NookDesign.Spacing.sidebarInset)
+                    .padding(.top, leleleSettings.sidebarPosition == .left ? LeleleBrowserDesign.Spacing.sidebarTop : LeleleBrowserDesign.Spacing.sidebarInset)
                     .transition(.opacity)
             } else {
                 mainSidebarContent
@@ -87,14 +87,14 @@ struct SpacesSideBarView: View {
         }
     }
 
-    @ObservedObject private var dragSession = NookDragSessionManager.shared
+    @ObservedObject private var dragSession = LeleleBrowserDragSessionManager.shared
 
     private var mainSidebarContent: some View {
-        return VStack(spacing: NookDesign.Spacing.sectionGap) {
+        return VStack(spacing: LeleleBrowserDesign.Spacing.sectionGap) {
             // History buttons: share the traffic-light row on the left, their own row on the right.
-            if nookSettings.sidebarPosition != .left {
+            if leleleSettings.sidebarPosition != .left {
                 titleRow
-                    .padding(.horizontal, NookDesign.Spacing.sidebarInset)
+                    .padding(.horizontal, LeleleBrowserDesign.Spacing.sidebarInset)
             }
 
             // Header (URL bar and its anchored suggestions)
@@ -112,7 +112,7 @@ struct SpacesSideBarView: View {
                 Color.clear
                     .contentShape(Rectangle())
                     .conditionalWindowDrag()
-                    .frame(minHeight: NookDesign.Size.bottomBar)
+                    .frame(minHeight: LeleleBrowserDesign.Size.bottomBar)
                     .zIndex(0)
             }
 
@@ -125,14 +125,14 @@ struct SpacesSideBarView: View {
             SidebarUpdateNotification(downloadsMenuVisible: showDownloadsMenu)
                 .environmentObject(browserManager)
                 .environment(windowState)
-                .padding(.horizontal, NookDesign.Spacing.sidebarInset)
-                .padding(.bottom, NookDesign.Spacing.sidebarInset)
+                .padding(.horizontal, LeleleBrowserDesign.Spacing.sidebarInset)
+                .padding(.bottom, LeleleBrowserDesign.Spacing.sidebarInset)
 
             SidebarWhatsNewCard()
                 .environmentObject(browserManager)
                 .environment(windowState)
-                .padding(.horizontal, NookDesign.Spacing.sidebarInset)
-                .padding(.bottom, NookDesign.Spacing.sidebarInset)
+                .padding(.horizontal, LeleleBrowserDesign.Spacing.sidebarInset)
+                .padding(.bottom, LeleleBrowserDesign.Spacing.sidebarInset)
 
             // Video left playing in another tab, directly above the media controls
             SidebarPiPView()
@@ -142,9 +142,9 @@ struct SpacesSideBarView: View {
             if !windowState.isIncognito, let agent = tabs.agentSpaceID, windowState.spaceID != agent,
                !tabs.displayOrder(inSpace: agent).isEmpty {
                 AgentSpaceRow(tabCount: tabs.displayOrder(inSpace: agent).count, busy: tabs.agentCallsInFlight > 0) {
-                    withAnimation(NookDesign.Motion.standard) { tabs.setSpace(agent, in: windowState) }
+                    withAnimation(LeleleBrowserDesign.Motion.standard) { tabs.setSpace(agent, in: windowState) }
                 }
-                .padding(.horizontal, NookDesign.Spacing.sidebarInset)
+                .padding(.horizontal, LeleleBrowserDesign.Spacing.sidebarInset)
             }
 
             // Media controls. Hides itself while the video is showing above it.
@@ -163,16 +163,16 @@ struct SpacesSideBarView: View {
             .environment(windowState)
         }
         // Extra top padding when sidebar is on the left to avoid overlapping native traffic light buttons
-        .padding(.top, nookSettings.sidebarPosition == .left ? NookDesign.Spacing.sidebarTop : NookDesign.Spacing.sidebarInset)
+        .padding(.top, leleleSettings.sidebarPosition == .left ? LeleleBrowserDesign.Spacing.sidebarTop : LeleleBrowserDesign.Spacing.sidebarInset)
         .overlay(alignment: .topLeading) {
-            if nookSettings.sidebarPosition == .left {
+            if leleleSettings.sidebarPosition == .left {
                 titleRow
-                    .frame(height: NookDesign.Spacing.sidebarTop)
-                    .padding(.leading, NookDesign.SidebarChrome.trafficLightsInset)
-                    .padding(.trailing, NookDesign.Spacing.sidebarInset)
+                    .frame(height: LeleleBrowserDesign.Spacing.sidebarTop)
+                    .padding(.leading, LeleleBrowserDesign.SidebarChrome.trafficLightsInset)
+                    .padding(.trailing, LeleleBrowserDesign.Spacing.sidebarInset)
             }
         }
-        .padding(.bottom, NookDesign.Spacing.sidebarInset)
+        .padding(.bottom, LeleleBrowserDesign.Spacing.sidebarInset)
         .background(
             GeometryReader { geo in
                 Color.clear
@@ -249,7 +249,7 @@ struct SpacesSideBarView: View {
         // The space dots follow the swipe, as Arc's do.
         .onPageSwipe { position in
             guard let position, let from = position.from.base as? UUID, let to = position.to.base as? UUID else {
-                withAnimation(NookDesign.Motion.pageSettle) { windowState.spaceSwipe = nil }
+                withAnimation(LeleleBrowserDesign.Motion.pageSettle) { windowState.spaceSwipe = nil }
                 return
             }
             windowState.spaceSwipe = SpaceSwipe(from: from, to: to, progress: position.progress)
@@ -265,11 +265,11 @@ struct SpacesSideBarView: View {
     }
 
     private var emptyStateView: some View {
-        VStack(spacing: NookDesign.Spacing.xl) {
+        VStack(spacing: LeleleBrowserDesign.Spacing.xl) {
             Image(systemName: "square.grid.2x2")
-                .font(NookDesign.Font.hero)
+                .font(LeleleBrowserDesign.Font.hero)
                 .foregroundColor(.secondary)
-            VStack(spacing: NookDesign.Spacing.md) {
+            VStack(spacing: LeleleBrowserDesign.Spacing.md) {
                 Text("No Spaces")
                     .font(.title2)
                     .fontWeight(.semibold)
@@ -352,14 +352,14 @@ struct SpacesSideBarView: View {
             Menu {
                 ForEach(SidebarPosition.allCases) { position in
                     Toggle(isOn: Binding(
-                        get: { nookSettings.sidebarPosition == position },
-                        set: { _ in nookSettings.sidebarPosition = position }
+                        get: { leleleSettings.sidebarPosition == position },
+                        set: { _ in leleleSettings.sidebarPosition = position }
                     )) {
                         Label(position.displayName, systemImage: position.icon)
                     }
                 }
             } label: {
-                Label("Position", systemImage: nookSettings.sidebarPosition.icon)
+                Label("Position", systemImage: leleleSettings.sidebarPosition.icon)
             }
         }
     }
@@ -399,17 +399,17 @@ struct SpacesSideBarView: View {
                 .environment(tabs)
                 .environment(windowState)
                 .environment(windowRegistry)
-                .environment(\.nookSettings, nookSettings)
-                .padding(.horizontal, NookDesign.Spacing.sidebarInset)
-                .padding(.bottom, NookDesign.Spacing.sectionGap)
+                .environment(\.leleleSettings, leleleSettings)
+                .padding(.horizontal, LeleleBrowserDesign.Spacing.sidebarInset)
+                .padding(.bottom, LeleleBrowserDesign.Spacing.sectionGap)
             }
 
             // Between favorites and pinned tabs, as in Arc.
             SpaceSwitcherTitle(spaceID: space.id, onNewSpace: showSpaceCreationDialog)
                 .environment(tabs)
                 .environment(windowState)
-                .padding(.horizontal, NookDesign.Spacing.sidebarInset)
-                .padding(.bottom, NookDesign.Spacing.sectionGap)
+                .padding(.horizontal, LeleleBrowserDesign.Spacing.sidebarInset)
+                .padding(.bottom, LeleleBrowserDesign.Spacing.sectionGap)
 
             SpaceView(
                 spaceID: space.id,
@@ -424,7 +424,7 @@ struct SpacesSideBarView: View {
             .environment(windowRegistry)
             .environment(commandPalette)
             .environment(tabOrganizerManager)
-            .environment(\.nookSettings, nookSettings)
+            .environment(\.leleleSettings, leleleSettings)
             .environmentObject(browserManager.gradientColorManager)
             .environmentObject(browserManager.splitManager)
             .id(space.id)
@@ -445,13 +445,13 @@ struct SpacesSideBarView: View {
     }
 
     private func titleRow(showsHistory: Bool) -> some View {
-        HStack(spacing: NookDesign.SidebarChrome.gap) {
-            Button("Toggle Sidebar", systemImage: nookSettings.sidebarPosition == .left ? "sidebar.left" : "sidebar.right") {
+        HStack(spacing: LeleleBrowserDesign.SidebarChrome.gap) {
+            Button("Toggle Sidebar", systemImage: leleleSettings.sidebarPosition == .left ? "sidebar.left" : "sidebar.right") {
                 browserManager.toggleSidebar(for: windowState)
             }
-            .nookSidebarIconButtons()
+            .leleleSidebarIconButtons()
             Spacer(minLength: 0)
-            if showsHistory, !nookSettings.topBarAddressView {
+            if showsHistory, !leleleSettings.topBarAddressView {
                 SidebarHistoryButtons()
                     .environmentObject(browserManager)
                     .environment(windowState)
@@ -463,7 +463,7 @@ struct SpacesSideBarView: View {
 
     /// Opens Create a Space in the sidebar, with a random preset previewing in the window.
     private func showSpaceCreationDialog() {
-        withAnimation(NookDesign.Motion.standard) {
+        withAnimation(LeleleBrowserDesign.Motion.standard) {
             windowState.isSidebarMenuVisible = false
             windowState.spaceDraftTheme = .randomPreset()
         }
@@ -473,7 +473,7 @@ struct SpacesSideBarView: View {
     // MARK: - Computed Properties
 
     private var menuTransition: AnyTransition {
-        .move(edge: nookSettings.sidebarPosition == .left ? .leading : .trailing)
+        .move(edge: leleleSettings.sidebarPosition == .left ? .leading : .trailing)
             .combined(with: .opacity)
     }
 }
@@ -488,26 +488,26 @@ private struct AgentSpaceRow: View {
 
     var body: some View {
         Button(action: toggle) {
-            HStack(spacing: NookDesign.Spacing.md) {
+            HStack(spacing: LeleleBrowserDesign.Spacing.md) {
                 Image(systemName: "sparkles")
-                    .font(.system(size: NookDesign.Size.rowGlyph, weight: .medium))
-                    .foregroundStyle(NookDesign.Surface.agentGradient)
-                    .frame(width: NookDesign.Size.favicon)
-                    .nookPulse(while: busy)
+                    .font(.system(size: LeleleBrowserDesign.Size.rowGlyph, weight: .medium))
+                    .foregroundStyle(LeleleBrowserDesign.Surface.agentGradient)
+                    .frame(width: LeleleBrowserDesign.Size.favicon)
+                    .lelelePulse(while: busy)
                 Text("Agent · \(tabCount) \(tabCount == 1 ? "tab" : "tabs")")
-                    .font(NookDesign.Font.body)
+                    .font(LeleleBrowserDesign.Font.body)
                 Spacer(minLength: 0)
             }
             .foregroundStyle(isHovering ? .secondary : .tertiary)
-            .padding(.horizontal, NookDesign.Spacing.rowPadding)
-            .frame(height: NookDesign.Size.row)
-            .background(isHovering ? NookDesign.Surface.fill : Color.clear)
-            .clipShape(NookDesign.Radius.shape(NookDesign.Radius.md))
-            .contentShape(NookDesign.Radius.shape(NookDesign.Radius.md))
+            .padding(.horizontal, LeleleBrowserDesign.Spacing.rowPadding)
+            .frame(height: LeleleBrowserDesign.Size.row)
+            .background(isHovering ? LeleleBrowserDesign.Surface.fill : Color.clear)
+            .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.md))
+            .contentShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.md))
         }
         .buttonStyle(.plain)
         .onHoverTracking { hovering in
-            withAnimation(NookDesign.Motion.hover(hovering)) { isHovering = hovering }
+            withAnimation(LeleleBrowserDesign.Motion.hover(hovering)) { isHovering = hovering }
         }
     }
 }
@@ -526,7 +526,7 @@ private struct ResizableSpaceFavorites: View {
 private struct BaseColorSchemeKey: EnvironmentKey { static let defaultValue: ColorScheme? = nil }
 
 extension EnvironmentValues {
-    var nookBaseColorScheme: ColorScheme? {
+    var leleleBaseColorScheme: ColorScheme? {
         get { self[BaseColorSchemeKey.self] }
         set { self[BaseColorSchemeKey.self] = newValue }
     }
@@ -544,7 +544,7 @@ private struct SpaceThemeScope: ViewModifier {
         let space = tabs.space(spaceID)
         let theme = isIncognito || space?.isAgent == true ? nil : space?.theme
         content
-            .environment(\.nookUsesDefaultSpaceTheme, space?.theme == nil)
+            .environment(\.leleleUsesDefaultSpaceTheme, space?.theme == nil)
             .transformEnvironment(\.colorScheme) { scheme in
                 switch theme?.mode {
                 case .light?: scheme = .light

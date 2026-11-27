@@ -1,0 +1,149 @@
+// Licensed under GPL-3.0. See LICENSE.
+//
+//  SpaceSeparator.swift
+//  LeleleBrowser
+//
+//  Created by Maciek Bagiński on 30/07/2025.
+//
+import SwiftUI
+import LeleleBrowserDesign
+
+public struct SpaceSeparator: View {
+    @Binding var isHovering: Bool
+    let onClear: () -> Void
+    let onOrganize: (() -> Void)?
+    let isOrganizing: Bool
+    let tabCount: Int
+    let clearCount: Int
+    @State private var isClearHovered: Bool = false
+    @State private var isOrganizeHovered: Bool = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    public init(
+        isHovering: Binding<Bool>,
+        onClear: @escaping () -> Void,
+        onOrganize: (() -> Void)?,
+        isOrganizing: Bool,
+        tabCount: Int,
+        clearCount: Int
+    ) {
+        self._isHovering = isHovering
+        self.onClear = onClear
+        self.onOrganize = onOrganize
+        self.isOrganizing = isOrganizing
+        self.tabCount = tabCount
+        self.clearCount = clearCount
+    }
+
+    public var body: some View {
+        let hasTabs = tabCount > 0
+        HStack(spacing: 0) {
+            // The rule itself is the progress indicator: it ripples while the organizer works.
+            TimelineView(.animation(paused: !isWaving)) { timeline in
+                WaveLine(
+                    amplitude: isWaving ? LeleleBrowserDesign.Size.waveAmplitude : 0,
+                    phase: timeline.date.timeIntervalSinceReferenceDate
+                        .truncatingRemainder(dividingBy: LeleleBrowserDesign.Motion.wavePeriod)
+                        / LeleleBrowserDesign.Motion.wavePeriod * 2 * .pi
+                )
+                .stroke(
+                    isWaving ? Color.accentColor : LeleleBrowserDesign.Surface.hairline,
+                    style: StrokeStyle(lineWidth: LeleleBrowserDesign.Size.hairlineWidth, lineCap: .round)
+                )
+            }
+            .padding(.horizontal, LeleleBrowserDesign.Spacing.md)
+            .animation(LeleleBrowserDesign.Motion.settle, value: isWaving)
+            .animation(LeleleBrowserDesign.Motion.quick, value: isHovering)
+
+            // Organize button (trailing side)
+            if hasTabs && tabCount >= 5 && isHovering {
+                if isOrganizing {
+                    // Reduce Motion keeps the spinner in place of the wave.
+                    if reduceMotion {
+                        ProgressView()
+                            .controlSize(.mini)
+                            .padding(.horizontal, LeleleBrowserDesign.Spacing.xs)
+                            .transition(.blur.animation(LeleleBrowserDesign.Motion.quick))
+                    }
+                } else if let onOrganize {
+                    Button(action: onOrganize) {
+                        HStack(spacing: LeleleBrowserDesign.Spacing.xs) {
+                            Image(systemName: "wand.and.stars")
+                                .font(LeleleBrowserDesign.Font.caption)
+                            Text("Organize")
+                                .font(LeleleBrowserDesign.Font.caption)
+                        }
+                        .foregroundStyle(isOrganizeHovered ? .primary : .tertiary)
+                        .padding(.horizontal, LeleleBrowserDesign.Spacing.xs)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .help("Organize tabs with AI")
+                    .transition(.blur.animation(LeleleBrowserDesign.Motion.quick))
+                    .onHoverTracking { state in
+                        isOrganizeHovered = state
+                    }
+                }
+            }
+
+            // Clear button (trailing side)
+            if clearCount > 0 && isHovering {
+                Button(action: onClear) {
+                    HStack(spacing: LeleleBrowserDesign.Spacing.xs) {
+                        Image(systemName: "arrow.down")
+                            .font(LeleleBrowserDesign.Font.caption)
+                        Text("Clear")
+                            .font(LeleleBrowserDesign.Font.caption)
+                    }
+                    .foregroundStyle(isClearHovered ? .primary : .tertiary)
+                    .padding(.horizontal, LeleleBrowserDesign.Spacing.xs)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .help("Close every tab but the current one")
+                .transition(.blur.animation(LeleleBrowserDesign.Motion.quick))
+                .onHoverTracking { state in
+                    isClearHovered = state
+                }
+            }
+        }
+        .frame(height: LeleleBrowserDesign.Size.rowGlyph + LeleleBrowserDesign.Spacing.xxs)
+        .frame(maxWidth: .infinity)
+    }
+
+    private var isWaving: Bool { isOrganizing && !reduceMotion }
+}
+
+// MARK: - WaveLine
+
+/// A horizontal rule that bends into a travelling sine wave. Both ends stay pinned to the
+/// centre line, and at amplitude 0 it is a straight hairline. LeleleBrowser's sign that a model is working.
+public struct WaveLine: Shape {
+    public var amplitude: CGFloat
+    public var phase: CGFloat
+
+    public init(amplitude: CGFloat, phase: CGFloat) {
+        self.amplitude = amplitude
+        self.phase = phase
+    }
+
+    public var animatableData: CGFloat {
+        get { amplitude }
+        set { amplitude = newValue }
+    }
+
+    public func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
+        guard amplitude > 0, rect.width > 0 else {
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+            return path
+        }
+        for x in stride(from: CGFloat(0), through: rect.width, by: 2) {
+            let envelope = sin(.pi * x / rect.width)
+            let wave = sin(2 * .pi * x / LeleleBrowserDesign.Size.waveLength - phase)
+            path.addLine(to: CGPoint(x: rect.minX + x, y: rect.midY + amplitude * envelope * wave))
+        }
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        return path
+    }
+}
+ 

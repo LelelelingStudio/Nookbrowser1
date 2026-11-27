@@ -1,7 +1,7 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  CommandPaletteView.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 28/07/2025.
 //
@@ -9,10 +9,10 @@
 import AppKit
 import SwiftUI
 import Garnish
-import NookDesign
-import NookSettings
-import NookWeb
-import NookUI
+import LeleleBrowserDesign
+import LeleleBrowserSettings
+import LeleleBrowserWeb
+import LeleleBrowserUI
 
 /// What a key does with the typed text, at the trailing edge of the field or a row: a label and a keycap.
 private struct PaletteKeyHint: View {
@@ -22,27 +22,27 @@ private struct PaletteKeyHint: View {
     var body: some View {
         HStack(spacing: 6) {
             Text(label)
-                .font(NookDesign.Font.body)
+                .font(LeleleBrowserDesign.Font.body)
                 .foregroundStyle(Color.secondary)
 
             Text(key)
-                .font(NookDesign.Font.caption)
+                .font(LeleleBrowserDesign.Font.caption)
                 .foregroundStyle(Color.secondary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
                 .background(
-                    NookDesign.Radius.shape(NookDesign.Radius.xs)
-                        .fill(NookDesign.Surface.fill)
+                    LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.xs)
+                        .fill(LeleleBrowserDesign.Surface.fill)
                 )
                 .overlay(
-                    NookDesign.Radius.shape(NookDesign.Radius.xs)
-                        .stroke(NookDesign.Surface.hairline, lineWidth: 0.5)
+                    LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.xs)
+                        .stroke(LeleleBrowserDesign.Surface.hairline, lineWidth: 0.5)
                 )
         }
         .allowsHitTesting(false)
         .transition(
             .blur(intensity: 4, scale: 0.92)
-            .animation(NookDesign.Motion.standard)
+            .animation(LeleleBrowserDesign.Motion.standard)
         )
     }
 }
@@ -53,7 +53,7 @@ struct CommandPaletteView: View {
     @Environment(CommandPalette.self) private var commandPalette
     @EnvironmentObject var gradientColorManager: GradientColorManager
     @State private var searchManager = SearchManager()
-    @Environment(\.nookSettings) var nookSettings
+    @Environment(\.leleleSettings) var leleleSettings
 
     @FocusState private var isSearchFocused: Bool
     @State private var text: String = ""
@@ -72,7 +72,7 @@ struct CommandPaletteView: View {
 
     private var siteSearchMatch: SiteSearchEntry? {
         guard activeSiteSearch == nil else { return nil }
-        return SiteSearchEntry.match(for: text, in: nookSettings.siteSearchEntries)
+        return SiteSearchEntry.match(for: text, in: leleleSettings.siteSearchEntries)
     }
 
     /// True while an input method is composing, i.e. the field editor holds marked text.
@@ -136,7 +136,7 @@ struct CommandPaletteView: View {
     /// Judged on the typed text, not the field's, so the rows hold still while the arrows move.
     private var lookupRowIndex: Int? {
         guard activeSiteSearch == nil,
-              SiteSearchEntry.match(for: userTypedText, in: nookSettings.siteSearchEntries) == nil,
+              SiteSearchEntry.match(for: userTypedText, in: leleleSettings.siteSearchEntries) == nil,
               lookupAvailable,
               let primary = primarySuggestion, case .search = primary.type else { return nil }
         return typedRowIndex + 1
@@ -202,14 +202,14 @@ struct CommandPaletteView: View {
                             HStack(spacing: 15) {
                                 Image(systemName: leadingIconName)
                                 .id(leadingIconName)
-                                .transition(.blur(intensity: 2, scale: 0.6).animation(NookDesign.Motion.standard))
-                                .font(NookDesign.Font.bodyRegular)
+                                .transition(.blur(intensity: 2, scale: 0.6).animation(LeleleBrowserDesign.Motion.standard))
+                                .font(LeleleBrowserDesign.Font.bodyRegular)
                                 .foregroundStyle(Color.primary)
                                 .frame(width: 15)
 
                                 if let site = activeSiteSearch {
                                     Text(site.name)
-                                        .font(NookDesign.Font.label)
+                                        .font(LeleleBrowserDesign.Font.label)
                                         .foregroundStyle(Garnish.contrastingShade(of: site.color, targetRatio: 4.5, blendStyle: .strong) ?? .white)
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 4)
@@ -217,7 +217,7 @@ struct CommandPaletteView: View {
                                         .clipShape(Capsule())
                                         .transition(
                                             .blur(intensity: 8, scale: 0.6)
-                                            .animation(NookDesign.Motion.spring)
+                                            .animation(LeleleBrowserDesign.Motion.spring)
                                         )
                                 }
 
@@ -229,13 +229,13 @@ struct CommandPaletteView: View {
                                         text: $text
                                     )
                                     .textFieldStyle(.plain)
-                                    .font(NookDesign.Font.heading)
+                                    .font(LeleleBrowserDesign.Font.heading)
                                     .foregroundColor(textFieldColor)
                                     .tint(gradientColorManager.accentColor)
                                     .overlay(alignment: .leading) {
                                         if let suffix = inlineCompletionSuffix {
                                             (Text(text).foregroundColor(.clear) + Text(suffix).foregroundColor(.secondary))
-                                                .font(NookDesign.Font.heading)
+                                                .font(LeleleBrowserDesign.Font.heading)
                                                 .lineLimit(1)
                                                 .allowsHitTesting(false)
                                         }
@@ -244,7 +244,7 @@ struct CommandPaletteView: View {
                                     .onKeyPress(.tab) {
                                         if isComposing { return .ignored }
                                         if let match = siteSearchMatch, activeSiteSearch == nil {
-                                            withAnimation(NookDesign.Motion.spring) {
+                                            withAnimation(LeleleBrowserDesign.Motion.spring) {
                                                 activeSiteSearch = match
                                             }
                                             text = ""
@@ -293,7 +293,7 @@ struct CommandPaletteView: View {
                                     .onKeyPress(.escape) {
                                         if isComposing { return .ignored }
                                         if activeSiteSearch != nil {
-                                            withAnimation(NookDesign.Motion.standard) {
+                                            withAnimation(LeleleBrowserDesign.Motion.standard) {
                                                 activeSiteSearch = nil
                                             }
                                             return .handled
@@ -305,7 +305,7 @@ struct CommandPaletteView: View {
                                         if isComposing { return .ignored }
                                         if press.modifiers.contains(.shift), removeSelectedHistoryRow() { return .handled }
                                         if activeSiteSearch != nil && text.isEmpty {
-                                            withAnimation(NookDesign.Motion.standard) {
+                                            withAnimation(LeleleBrowserDesign.Motion.standard) {
                                                 activeSiteSearch = nil
                                             }
                                             return .handled
@@ -316,7 +316,7 @@ struct CommandPaletteView: View {
                                         if isComposing { return .ignored }
                                         if press.modifiers.contains(.shift), removeSelectedHistoryRow() { return .handled }
                                         if activeSiteSearch != nil && text.isEmpty {
-                                            withAnimation(NookDesign.Motion.standard) {
+                                            withAnimation(LeleleBrowserDesign.Motion.standard) {
                                                 activeSiteSearch = nil
                                             }
                                             return .handled
@@ -350,13 +350,13 @@ struct CommandPaletteView: View {
                                     }
                                 }
                             }
-                            .animation(NookDesign.Motion.spring, value: activeSiteSearch != nil)
+                            .animation(LeleleBrowserDesign.Motion.spring, value: activeSiteSearch != nil)
                             .padding(.vertical, 8)
                             .padding(.horizontal, 8)
 
                             if !visibleSuggestions.isEmpty {
                                 Capsule()
-                                    .fill(NookDesign.Surface.hairline)
+                                    .fill(LeleleBrowserDesign.Surface.hairline)
                                     .frame(height: 0.5)
                                     .frame(maxWidth: .infinity)
                             }
@@ -376,9 +376,9 @@ struct CommandPaletteView: View {
                         .padding(10)
                         .frame(maxWidth: .infinity)
                         .frame(width: effectiveCommandPaletteWidth)
-                        .nookFloatingSurface(in: NookDesign.Radius.shape(NookDesign.Radius.xxl))
+                        .leleleFloatingSurface(in: LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.xxl))
                         .animation(
-                            NookDesign.Motion.quick,
+                            LeleleBrowserDesign.Motion.quick,
                             value: searchManager.suggestions.count
                         )
                         Spacer()
@@ -476,19 +476,19 @@ struct CommandPaletteView: View {
                         .padding(.vertical, 11)
                         .background(
                             selectedIndex == index
-                                ? NookDesign.Surface.fillPressed
+                                ? LeleleBrowserDesign.Surface.fillPressed
                                 : isHovered
-                                    ? NookDesign.Surface.fill
+                                    ? LeleleBrowserDesign.Surface.fill
                                     : .clear
                         )
                         .clipShape(
-                            NookDesign.Radius.shape(NookDesign.Radius.sm)
+                            LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.sm)
                         )
-                        .font(NookDesign.Font.label)
+                        .font(LeleleBrowserDesign.Font.label)
                         .foregroundStyle(.primary)
-                        .contentShape(NookDesign.Radius.shape(NookDesign.Radius.sm))
+                        .contentShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.sm))
                         .onHoverTracking { hovering in
-                            withAnimation(NookDesign.Motion.hover(hovering)) {
+                            withAnimation(LeleleBrowserDesign.Motion.hover(hovering)) {
                                 if hovering {
                                     hoveredIndex = index
                                 } else {
@@ -509,7 +509,7 @@ struct CommandPaletteView: View {
         ) -> some View {
             switch suggestion.type {
             case .search where isLookup:
-                HStack(spacing: NookDesign.Spacing.md) {
+                HStack(spacing: LeleleBrowserDesign.Spacing.md) {
                     GenericSuggestionItem(
                         icon: Image(systemName: "sparkle.magnifyingglass"),
                         text: suggestion.text,
@@ -616,7 +616,7 @@ struct CommandPaletteView: View {
             } else {
                 // Normalize the URL/search query first, then create the tab with
                 // the correct URL so the webview loads it directly without a race.
-                let template = browserManager.nookSettings?.resolvedSearchEngineTemplate ?? SearchProvider.google.queryTemplate
+                let template = browserManager.leleleSettings?.resolvedSearchEngineTemplate ?? SearchProvider.google.queryTemplate
                 let resolved = normalizeURL(suggestion.text, queryTemplate: template)
                 if let url = URL(string: resolved) {
                     browserManager.tabs.open(url: url, in: windowState, placement: .newTab)

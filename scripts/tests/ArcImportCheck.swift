@@ -1,12 +1,12 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  ArcImportCheck.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Arc's sidebar parses in order with nesting intact. Compiles the shipped source directly:
 //
-//    swiftc Nook/Managers/ImportManager/Arc.swift Packages/NookSettings/Sources/NookSettings/SiteRoutingRule.swift \
-//           Packages/NookTabsCore/Sources/NookTabsCore/*.swift scripts/tests/ArcImportCheck.swift \
+//    swiftc LeleleBrowser/Managers/ImportManager/Arc.swift Packages/LeleleBrowserSettings/Sources/LeleleBrowserSettings/SiteRoutingRule.swift \
+//           Packages/LeleleBrowserTabsCore/Sources/LeleleBrowserTabsCore/*.swift scripts/tests/ArcImportCheck.swift \
 //           -o /tmp/arc-import-check && /tmp/arc-import-check [StorableSidebar.json]
 //
 //  With a path it also prints a summary of that file.

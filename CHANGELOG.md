@@ -1,5 +1,17 @@
 # Changelog
 
+## Lelele Browser 0.1.0 (2026-11-26)
+
+First rebranded build. This fork is based on Nook 1.7.0 and remains GPL-3.0.
+
+- Rebranded the project, targets, packages, symbols, resources and documentation to Lelele Browser.
+- Replaced the app icon with the Lelele Browser artwork and set bundle IDs to `com.leleleling.browser` / `com.leleleling.browser.ios`.
+- Replaced the launcher scheme with `lelele://`.
+- Added self-adaptive localization: system language, English and Simplified Chinese, with English fallback.
+- Added Memory Saver refinements, including an immediate **Unload All Inactive Tabs** action and localized mode descriptions.
+- Added `NOTICE.md` and rewrote the README and trademark policy.
+- Disabled Sparkle automatic checks until a Lelele Browser feed and signing key are configured.
+
 ## 1.7.0
 
 ### Added
@@ -73,7 +85,7 @@
 - Site Settings in the address bar
 - Arc import brings archived tabs and Air Traffic Control rules
 - Extensions in private windows, per extension
-- nook:// links for launchers
+- lelele:// links for launchers
 - Cmd-D pins a tab, Cmd-. stops loading, Close All Above
 - Collapse and expand all folders
 
@@ -248,10 +260,10 @@
 
 ### Added
 
-- Ask Nook, the AI chat in the sidebar, can run on Apple Intelligence on your Mac with no API key. It becomes the default when no other provider is set up. It answers questions about the page
+- Ask LeleleBrowser, the AI chat in the sidebar, can run on Apple Intelligence on your Mac with no API key. It becomes the default when no other provider is set up. It answers questions about the page
 - Links you open from a tab now nest under it, and new tabs open right below the tab you're on
 - Back, forward and reload moved up beside the window buttons
-- Liquid Glass throughout the sidebar, History and Downloads, Peek and Ask Nook
+- Liquid Glass throughout the sidebar, History and Downloads, Peek and Ask LeleleBrowser
 - PDF controls to zoom, print, save or open the file in Preview. Cmd+P prints any page, and a page's own print button works now
 - Settings > Appearance > Hide border lets the page sit flush against the window (#370)
 
@@ -262,7 +274,7 @@
 - Peek and the sign-in window run like a normal tab now, with the full ad blocker, site tweaks, downloads and page dialogs
 - Sidebar PiP only picks up a playing landscape video with sound, which keeps Shorts, reels and feed autoplay out. The player's title and progress bars no longer show in the sidebar
 - The sidebar has a minimum width so back, forward and reload always fit
-- Ask Nook shows its reply as it's written
+- Ask LeleleBrowser shows its reply as it's written
 
 ### Fixed
 
@@ -271,17 +283,17 @@
 - The window buttons now hide with the sidebar and stay hidden after leaving full screen
 - Peek could draw the page cut off at the top and left
 - Email, phone and other app links did nothing. They open in their app now
-- The Settings button in Ask Nook and every Space Settings shortcut and menu item did nothing
+- The Settings button in Ask LeleleBrowser and every Space Settings shortcut and menu item did nothing
 - Gemini 3 failed after its first tool call, and GPT-5 and o-series models failed through the OpenAI-compatible provider
 - Save Image could send the site's cookies along to wherever the image redirected
-- In History, the time filter never refreshed and deleting a row lost your place. History older than 100 days is now cleared in every space; before, only the space Nook opened in was cleared
+- In History, the time filter never refreshed and deleting a row lost your place. History older than 100 days is now cleared in every space; before, only the space LeleleBrowser opened in was cleared
 - In Downloads, Move to Trash opened Finder, and the download indicator could show the wrong download
 
 ## 1.1.0
 
-Nook is being revived!
+LeleleBrowser is being revived!
 
-The bundle identifier has changed, so the updater in 1.0.x cannot install the latest version. Download the DMG and replace Nook in Applications to launch it.
+The bundle identifier has changed, so the updater in 1.0.x cannot install the latest version. Download the DMG and replace LeleleBrowser in Applications to launch it.
 
 The latest release requires macOS 26.
 

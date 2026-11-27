@@ -1,9 +1,9 @@
-// Generates Packages/NookBlocker/Sources/NookBlocker/Resources/redirects.json
+// Generates Packages/LeleleBrowserBlocker/Sources/LeleleBrowserBlocker/Resources/redirects.json
 // from the $redirect= and $redirect-rule= network rules in the bundled filter
 // lists, paired with uBlock Origin's redirect resource bodies.
 //
 // WebKit's content rule lists can block a request but cannot answer one, so the
-// substitution happens in the page, in nook-stealth-redirects.js. The table it
+// substitution happens in the page, in lelele-stealth-redirects.js. The table it
 // needs is built per navigation by AdvancedRulesEngine, because most of these
 // rules are domain-scoped and a given page needs only a handful of them.
 //
@@ -13,8 +13,8 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 const root = path.dirname(fileURLToPath(new URL('.', import.meta.url)));
-const uboSrc = path.join(root, 'Packages/NookBlocker/ThirdParty/ubo-scriptlets/src');
-const listDir = path.join(root, 'Packages/NookBlocker/Sources/NookBlocker/Resources');
+const uboSrc = path.join(root, 'Packages/LeleleBrowserBlocker/ThirdParty/ubo-scriptlets/src');
+const listDir = path.join(root, 'Packages/LeleleBrowserBlocker/Sources/LeleleBrowserBlocker/Resources');
 const out = path.join(listDir, 'redirects.json');
 
 // Ad-Shield compares the script it receives against an X-Length response header,

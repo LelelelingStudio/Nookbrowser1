@@ -1,12 +1,12 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  ExtensionTabOrderCheck.swift
-//  Nook
+//  LeleleBrowser
 //
 //  The extension adapters' tab order is read once per change and rebuilt on the first read
 //  after one. Compiles the shipped source directly:
 //
-//    swiftc Nook/Managers/ExtensionManager/ExtensionTabOrder.swift \
+//    swiftc LeleleBrowser/Managers/ExtensionManager/ExtensionTabOrder.swift \
 //           scripts/tests/ExtensionTabOrderCheck.swift \
 //           -o /tmp/extension-tab-order-check && /tmp/extension-tab-order-check
 //

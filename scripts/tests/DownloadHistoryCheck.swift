@@ -1,5 +1,5 @@
 // Licensed under GPL-3.0. See LICENSE.
-// swiftc Nook/Managers/DownloadManager/DownloadHistoryStore.swift scripts/tests/DownloadHistoryCheck.swift -o /tmp/dlhist && /tmp/dlhist
+// swiftc LeleleBrowser/Managers/DownloadManager/DownloadHistoryStore.swift scripts/tests/DownloadHistoryCheck.swift -o /tmp/dlhist && /tmp/dlhist
 
 import Foundation
 

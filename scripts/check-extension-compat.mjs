@@ -8,7 +8,7 @@ import path from 'path';
 import vm from 'vm';
 
 const root = path.dirname(fileURLToPath(new URL('.', import.meta.url)));
-const shim = readFileSync(path.join(root, 'Nook/Managers/ExtensionManager/NookExtensionCompat.js'), 'utf8');
+const shim = readFileSync(path.join(root, 'LeleleBrowser/Managers/ExtensionManager/LeleleBrowserExtensionCompat.js'), 'utf8');
 
 // Built inside the context, so its objects share a realm with the shim's as they do in WebKit.
 const webkit = `
@@ -24,35 +24,35 @@ const webkit = `
       this.saved = items; return Promise.resolve();
     } } },
   };
-  // Nook on the other end of the channel: answers requests, and posts events down any open port.
-  globalThis.nook = { requests: [], ports: [], granted: false, document: null, post(m) { this.ports.forEach(p => p.deliver(m)); } };
+  // LeleleBrowser on the other end of the channel: answers requests, and posts events down any open port.
+  globalThis.lelele = { requests: [], ports: [], granted: false, document: null, post(m) { this.ports.forEach(p => p.deliver(m)); } };
   if (KIND === 'extension') {
     chrome.runtime.getManifest = () => ({ name: 'N', version: '1.2', permissions: PERMISSIONS });
     chrome.runtime.sendNativeMessage = (application, request, callback) => {
       // WebKit sets runtime.lastError for the length of a callback whose message failed.
       if (callback) { chrome.runtime.lastError = { message: 'Invalid call to runtime.sendNativeMessage(). ' + request.args[0] }; callback(); delete chrome.runtime.lastError; return undefined; }
-      nook.requests.push(application + ' ' + request.api + '.' + request.method);
-      if (application !== 'com.gstudios.nook.compat') return Promise.reject(new Error('host not found'));
+      lelele.requests.push(application + ' ' + request.api + '.' + request.method);
+      if (application !== 'com.leleleling.browser.compat') return Promise.reject(new Error('host not found'));
       const key = request.api + '.' + request.method;
       if (key === 'offscreen.createDocument') {
-        if (nook.document) return Promise.resolve({ error: 'Only a single offscreen document may be created.' });
-        nook.document = { url: 'webkit-extension://abc/' + request.args[0].url, documentId: 'doc-1' };
+        if (lelele.document) return Promise.resolve({ error: 'Only a single offscreen document may be created.' });
+        lelele.document = { url: 'webkit-extension://abc/' + request.args[0].url, documentId: 'doc-1' };
         return Promise.resolve({ result: null });
       }
-      if (key === 'offscreen.document') return Promise.resolve({ result: nook.document });
-      if (key === 'offscreen.hasDocument') return Promise.resolve({ result: !!nook.document });
+      if (key === 'offscreen.document') return Promise.resolve({ result: lelele.document });
+      if (key === 'offscreen.hasDocument') return Promise.resolve({ result: !!lelele.document });
       if (key === 'offscreen.link') return Promise.resolve({ result: false });
       if (key === 'notifications.create') return Promise.resolve({ result: typeof request.args[0] === 'string' ? request.args[0] : 'made-up-id' });
       if (key === 'idle.queryState') return Promise.resolve(typeof request.args[0] === 'number' ? { result: 'active' } : { error: 'A detection interval in seconds is required.' });
-      if (key === 'nook.nativeMessagingGranted') return Promise.resolve({ result: nook.granted });
-      if (key === 'nook.requestNativeMessaging') { nook.granted = true; return Promise.resolve({ result: true }); }
+      if (key === 'lelele.nativeMessagingGranted') return Promise.resolve({ result: lelele.granted });
+      if (key === 'lelele.requestNativeMessaging') { lelele.granted = true; return Promise.resolve({ result: true }); }
       return Promise.resolve({ error: key + ' is not available' });
     };
     chrome.runtime.connectNative = application => {
       const listeners = [];
       const port = { application, posted: [], onMessage: { addListener: f => listeners.push(f) }, onDisconnect: { addListener() {} },
                      postMessage(m) { this.posted.push(m); }, deliver(m) { listeners.forEach(f => f(m)); } };
-      nook.ports.push(port);
+      lelele.ports.push(port);
       return port;
     };
   }
@@ -112,9 +112,9 @@ function load(identity, kind = 'extension', { permissions = [], ownsChannel = fa
     vm.runInContext(webkit, context);
     vm.runInContext(before, context);
     // The patcher writes the list of empty scripts as a string holding JSON. A shim it never touched has none.
-    const listed = empty ? shim.replace("'__NOOK_EMPTY_SCRIPTS__'", JSON.stringify(JSON.stringify(empty))) : shim;
-    vm.runInContext(listed.replace('__NOOK_IDENTITY__', identity).replace('__NOOK_OWNS_CHANNEL__', String(ownsChannel))
-        .replace('__NOOK_BACKGROUND_SHIM__', String(backgroundShim)), context);
+    const listed = empty ? shim.replace("'__LELELE_EMPTY_SCRIPTS__'", JSON.stringify(JSON.stringify(empty))) : shim;
+    vm.runInContext(listed.replace('__LELELE_IDENTITY__', identity).replace('__LELELE_OWNS_CHANNEL__', String(ownsChannel))
+        .replace('__LELELE_BACKGROUND_SHIM__', String(backgroundShim)), context);
     return { context, run: code => vm.runInContext(code, context) };
 }
 
@@ -205,11 +205,11 @@ assert.equal(run(`chrome.contextMenus.made.join()`), 'page+action,action');
 assert.throws(() => run(`chrome.contextMenus.create({ id: 'd', title: 't', contexts: 5 })`), /not iterable/);
 
 // Every patched namespace object is held, or WebKit rebuilds it bare.
-assert.ok(run('__nookCompat.includes(chrome.scripting) && __nookCompat.includes(chrome.permissions)'));
+assert.ok(run('__leleleCompat.includes(chrome.scripting) && __leleleCompat.includes(chrome.permissions)'));
 // A second copy of the shim in the same context does nothing.
-const held = run('__nookCompat.length');
-vm.runInContext(shim.replace('__NOOK_IDENTITY__', 'firefox'), context);
-assert.equal(run('__nookCompat.length'), held);
+const held = run('__leleleCompat.length');
+vm.runInContext(shim.replace('__LELELE_IDENTITY__', 'firefox'), context);
+assert.equal(run('__leleleCompat.length'), held);
 assert.match(run('navigator.userAgent'), / Chrome\//);
 
 // A Firefox add-on is told it runs in Firefox.
@@ -229,7 +229,7 @@ assert.equal(content.run('chrome.runtime.OnInstalledReason'), undefined);
 // In a page's own world there is no extension, and the shim leaves everything alone.
 const page = load('chrome', 'page');
 assert.equal(page.run('navigator.userAgent'), 'Safari');
-assert.equal(page.run('typeof __nookCompat'), 'undefined');
+assert.equal(page.run('typeof __leleleCompat'), 'undefined');
 
 // The native bridge. An API exists only for an extension whose manifest asks for it.
 assert.equal(run('chrome.offscreen'), undefined);
@@ -269,28 +269,28 @@ assert.equal(bridged.run(`chrome.tabs.onCreated.removeListener(onCreated); chrom
 // An extension without the offscreen API keeps WebKit's events as they are.
 assert.equal(run(`chrome.tabs.onCreated.addListener.toString().includes('listeners.push')`), true);
 
-// Every request went to Nook's own application and nowhere else.
-assert.ok(bridged.run('nook.requests.length > 0 && nook.requests.every(r => r.startsWith("com.gstudios.nook.compat "))'));
+// Every request went to LeleleBrowser's own application and nowhere else.
+assert.ok(bridged.run('lelele.requests.length > 0 && lelele.requests.every(r => r.startsWith("com.leleleling.browser.compat "))'));
 
-// nativeMessaging is in the manifest only as Nook's channel, so the extension is told it has none.
+// nativeMessaging is in the manifest only as LeleleBrowser's channel, so the extension is told it has none.
 assert.equal(JSON.stringify((await bridged.run('chrome.permissions.getAll()')).permissions), '["tabs"]');
 assert.equal(await bridged.run(`chrome.permissions.contains({ permissions: ['nativeMessaging'] })`), false);
 assert.equal(await bridged.run(`chrome.permissions.contains({ permissions: ['tabs'] })`), true);
-// Once the person grants it through Nook, it shows.
+// Once the person grants it through LeleleBrowser, it shows.
 assert.equal(await bridged.run(`chrome.permissions.request({ permissions: ['nativeMessaging', 'tabs'] })`), true);
 assert.equal(await bridged.run(`chrome.permissions.contains({ permissions: ['nativeMessaging'] })`), true);
 assert.equal(JSON.stringify((await bridged.run('chrome.permissions.getAll()')).permissions), '["tabs","nativeMessaging"]');
 // An extension that declared nativeMessaging itself is not second-guessed.
 const own = load('chrome', 'extension', { permissions: ['offscreen', 'nativeMessaging'], ownsChannel: false });
 assert.equal(JSON.stringify((await own.run('chrome.permissions.getAll()')).permissions), '["tabs","nativeMessaging"]');
-assert.ok(own.run('nook.requests.length === 0'));
+assert.ok(own.run('lelele.requests.length === 0'));
 
-// webNavigation's two same-document events. Nook names the tab by address and place; the id comes from
+// webNavigation's two same-document events. LeleleBrowser names the tab by address and place; the id comes from
 // WebKit's own tabs.onUpdated for the same change, whichever of the two arrives first.
 assert.equal(run('chrome.webNavigation.onHistoryStateUpdated.hasListeners()'), false);
 const navigating = load('chrome', 'extension', { permissions: ['webNavigation'] });
 const pause = ms => new Promise(done => setTimeout(done, ms));
-const fire = (url, tabIndex = 0) => navigating.run(`nook.post({ event: 'webNavigation.onHistoryStateUpdated', args: [{ url: '${url}', tabIndex: ${tabIndex}, frameId: 0 }] })`);
+const fire = (url, tabIndex = 0) => navigating.run(`lelele.post({ event: 'webNavigation.onHistoryStateUpdated', args: [{ url: '${url}', tabIndex: ${tabIndex}, frameId: 0 }] })`);
 navigating.run(`globalThis.got = [];
   const on = chrome.webNavigation.onHistoryStateUpdated;
   on.addListener(d => got.push(d.tabId + ' ' + d.url + ' ' + ('tabIndex' in d)));
@@ -300,12 +300,12 @@ navigating.run(`globalThis.got = [];
   on.addListener(d => got.push('regex'), { url: [{ urlMatches: '^https://www[.]example[.]com/a[?]x=[0-9]$' }] });
   on.addListener(d => got.push('other'), { url: [{ hostPrefix: 'example' }, { urlEquals: 'https://www.example.com/a' }, { unknownKey: 'x' }] });`);
 await pause(5);
-assert.equal(JSON.stringify(navigating.run('nook.ports[0].posted.pop()')), '{"subscribe":["webNavigation.onHistoryStateUpdated"],"lazy":false}');
+assert.equal(JSON.stringify(navigating.run('lelele.ports[0].posted.pop()')), '{"subscribe":["webNavigation.onHistoryStateUpdated"],"lazy":false}');
 navigating.run(`chrome.tabs.onUpdated.fire(7, { url: 'https://www.example.com:443/a?x=1#top' }, {})`);
 fire('https://www.example.com:443/a?x=1#top');
 await pause(5);
 assert.equal(navigating.run('got.sort().join()'), '7 https://www.example.com:443/a?x=1#top false,dotted,equals,regex,suffix');
-// Nook's event first, then the update.
+// LeleleBrowser's event first, then the update.
 navigating.run('got.length = 0');
 fire('https://other.test/b');
 navigating.run(`chrome.tabs.onUpdated.fire(9, { status: 'complete' }, {}); chrome.tabs.onUpdated.fire(9, { url: 'https://other.test/b' }, {})`);
@@ -318,15 +318,15 @@ fire('https://one.test/', 0);
 fire('https://nowhere.test/', 0);
 await pause(450);
 assert.equal(navigating.run('got.sort().join()'), '5 https://q.test/ false,6 https://one.test/ false');
-// A removed listener hears nothing more, and Nook is told when the last one goes.
+// A removed listener hears nothing more, and LeleleBrowser is told when the last one goes.
 navigating.run(`globalThis.one = d => got.push('one'); chrome.webNavigation.onReferenceFragmentUpdated.addListener(one);`);
 await pause(5);
-assert.equal(navigating.run('nook.ports[0].posted.pop().subscribe.length'), 2);
+assert.equal(navigating.run('lelele.ports[0].posted.pop().subscribe.length'), 2);
 navigating.run(`chrome.webNavigation.onReferenceFragmentUpdated.removeListener(one)`);
 await pause(5);
-assert.equal(navigating.run('nook.ports[0].posted.pop().subscribe.join()'), 'webNavigation.onHistoryStateUpdated');
+assert.equal(navigating.run('lelele.ports[0].posted.pop().subscribe.join()'), 'webNavigation.onHistoryStateUpdated');
 
-// idle: asked of Nook, and told by Nook. An extension that did not ask for it has no such namespace.
+// idle: asked of LeleleBrowser, and told by LeleleBrowser. An extension that did not ask for it has no such namespace.
 assert.equal(navigating.run('chrome.idle'), undefined);
 const idling = load('chrome', 'extension', { permissions: ['idle'] });
 assert.equal(await idling.run('chrome.idle.queryState(60)'), 'active');
@@ -334,8 +334,8 @@ assert.equal(await idling.run(`new Promise(done => chrome.idle.queryState('soon'
 assert.equal(idling.run('chrome.idle.IdleState.LOCKED'), 'locked');
 idling.run(`globalThis.states = []; chrome.idle.onStateChanged.addListener(s => states.push(s))`);
 await pause(5);
-assert.equal(idling.run('nook.ports[0].posted.pop().subscribe.join()'), 'idle.onStateChanged');
-idling.run(`nook.post({ event: 'idle.onStateChanged', args: ['locked'] }); nook.post({ event: 'idle.onOther', args: ['x'] })`);
+assert.equal(idling.run('lelele.ports[0].posted.pop().subscribe.join()'), 'idle.onStateChanged');
+idling.run(`lelele.post({ event: 'idle.onStateChanged', args: ['locked'] }); lelele.post({ event: 'idle.onOther', args: ['x'] })`);
 assert.equal(idling.run('states.join()'), 'locked');
 
 // notifications: real for an extension that declares it, and the phase 1 stand-in, which shows nothing, for one that does not.
@@ -343,17 +343,17 @@ assert.equal(await idling.run('chrome.notifications.getPermissionLevel()'), 'den
 const notifying = load('chrome', 'extension', { permissions: ['notifications'] });
 assert.equal(await notifying.run(`chrome.notifications.create('mine', { type: 'basic', title: 't', message: 'm' })`), 'mine');
 assert.equal(await notifying.run(`new Promise(done => chrome.notifications.create({ type: 'basic', title: 't', message: 'm' }, done))`), 'made-up-id');
-assert.equal(notifying.run('nook.requests.filter(r => r.endsWith("notifications.create")).length'), 2);
+assert.equal(notifying.run('lelele.requests.filter(r => r.endsWith("notifications.create")).length'), 2);
 notifying.run(`globalThis.clicks = []; chrome.notifications.onButtonClicked.addListener((id, index) => clicks.push(id + ' ' + index))`);
 await pause(5);
-notifying.run(`nook.post({ event: 'notifications.onButtonClicked', args: ['mine', 1] })`);
+notifying.run(`lelele.post({ event: 'notifications.onButtonClicked', args: ['mine', 1] })`);
 assert.equal(notifying.run('clicks.join()'), 'mine 1');
 
 // identity: the redirect address is answered here and at once, as Chrome answers it.
 const signing = load('chrome', 'extension', { permissions: ['identity'] });
 assert.equal(signing.run(`[chrome.identity.getRedirectURL(), chrome.identity.getRedirectURL('cb'), chrome.identity.getRedirectURL('/cb')].join()`),
              'https://abc.chromiumapp.org/,https://abc.chromiumapp.org/cb,https://abc.chromiumapp.org/cb');
-assert.equal(signing.run('nook.requests.length'), 0);
+assert.equal(signing.run('lelele.requests.length'), 0);
 assert.equal(notifying.run('chrome.identity'), undefined);
 
 // The offscreen document and the worker. WebKit joins neither to the other as a service worker client,
@@ -387,7 +387,7 @@ const connect = info => {
     return mine;
 };
 const offscreenPage = load('chrome', 'extension', { permissions: ['offscreen'], globals: { ...dom, CONNECT: connect }, before: `
-  globalThis.__nookOffscreen = true;
+  globalThis.__leleleOffscreen = true;
   globalThis.addEventListener = () => {};
   globalThis.nowhere = 0;
   globalThis.ServiceWorker = class ServiceWorker { postMessage() { nowhere++; } };
@@ -529,7 +529,7 @@ const starting = load('chrome', 'content', { before: `
   globalThis.sent = [];
   globalThis.workerUpAfter = 2;
   chrome.runtime.sendMessage = function (m) {
-    const ping = !!m && m.__nookCompatPing === 1, cb = typeof arguments[arguments.length - 1] === 'function' ? arguments[arguments.length - 1] : null;
+    const ping = !!m && m.__leleleCompatPing === 1, cb = typeof arguments[arguments.length - 1] === 'function' ? arguments[arguments.length - 1] : null;
     sent.push(ping ? 'ping' : m);
     const reply = Promise.resolve(ping ? (sent.filter(x => x === 'ping').length > workerUpAfter ? true : undefined) : 'reply:' + m);
     return cb ? void reply.then(cb) : reply;
@@ -546,31 +546,31 @@ assert.equal(starting.run('sent.length'), 7);
 const fast = { setTimeout: (f, ms) => setTimeout(f, ms / 100), Date: { now: () => Date.now() * 100 } };
 const stuck = load('chrome', 'content', { globals: fast, before: `
   globalThis.pings = 0;
-  chrome.runtime.sendMessage = m => Promise.resolve(m && m.__nookCompatPing === 1 ? void pings++ : 'late:' + m);` });
+  chrome.runtime.sendMessage = m => Promise.resolve(m && m.__leleleCompatPing === 1 ? void pings++ : 'late:' + m);` });
 assert.equal(await stuck.run(`chrome.runtime.sendMessage('x')`), 'late:x');
 assert.ok(stuck.run('pings') >= 8 && stuck.run('pings') <= 20, 'the wait backs off: ' + stuck.run('pings'));
 // A hidden page's timers run a second apart or worse. The wait still ends after its four seconds.
 const hidden = load('chrome', 'content', { globals: { setTimeout: (f, ms) => setTimeout(f, 10), Date: { now: () => Date.now() * 100 } }, before: `
   globalThis.pings = 0;
-  chrome.runtime.sendMessage = m => Promise.resolve(m && m.__nookCompatPing === 1 ? void pings++ : 'late:' + m);` });
+  chrome.runtime.sendMessage = m => Promise.resolve(m && m.__leleleCompatPing === 1 ? void pings++ : 'late:' + m);` });
 assert.equal(await hidden.run(`chrome.runtime.sendMessage('x')`), 'late:x');
 assert.ok(hidden.run('pings') <= 6, 'a throttled page asks a few times, not fourteen: ' + hidden.run('pings'));
-// A background Nook could not put the shim in has nobody to answer, and its own listeners are never asked.
+// A background LeleleBrowser could not put the shim in has nobody to answer, and its own listeners are never asked.
 const alone = load('chrome', 'content', { backgroundShim: false, before: `globalThis.native = () => 'native'; chrome.runtime.sendMessage = native;` });
 assert.equal(alone.run('chrome.runtime.sendMessage === native'), true);
 // The worker's shim answers the question, and no listener of the extension's sees it, in the worker or in a page.
 worker.run(`globalThis.messages = []; chrome.runtime.onMessage.addListener(m => { messages.push(m); });`);
-assert.equal(worker.run(`globalThis.answers = []; chrome.runtime.onMessage.fire({ __nookCompatPing: 1 }, {}, a => answers.push(a)); answers.join() + ' ' + messages.length`), 'true 0');
+assert.equal(worker.run(`globalThis.answers = []; chrome.runtime.onMessage.fire({ __leleleCompatPing: 1 }, {}, a => answers.push(a)); answers.join() + ' ' + messages.length`), 'true 0');
 worker.run(`chrome.runtime.onMessage.fire('real', {}, () => {})`);
 assert.equal(worker.run('messages.join()'), 'real');
 // An MV2 background page is the background too, and answers.
 const mv2 = load('firefox', 'extension', { before: `globalThis.window = globalThis; chrome.extension = { getBackgroundPage: () => globalThis };` });
-assert.equal(mv2.run(`globalThis.answers = []; chrome.runtime.onMessage.fire({ __nookCompatPing: 1 }, {}, a => answers.push(a)); answers.join()`), 'true');
+assert.equal(mv2.run(`globalThis.answers = []; chrome.runtime.onMessage.fire({ __leleleCompatPing: 1 }, {}, a => answers.push(a)); answers.join()`), 'true');
 // The extension is told of its own listeners only, not of the shim's.
 assert.equal(mv2.run('chrome.runtime.onMessage.hasListeners()'), false);
 assert.equal(mv2.run('chrome.runtime.onMessage.addListener(() => {}); chrome.runtime.onMessage.hasListeners()'), true);
 plainPage.run(`globalThis.messages = []; chrome.runtime.onMessage.addListener(m => { messages.push(m); });`);
-assert.equal(plainPage.run(`globalThis.answers = []; chrome.runtime.onMessage.fire({ __nookCompatPing: 1 }, {}, a => answers.push(a)); answers.length + ' ' + messages.length`), '0 0');
+assert.equal(plainPage.run(`globalThis.answers = []; chrome.runtime.onMessage.fire({ __leleleCompatPing: 1 }, {}, a => answers.push(a)); answers.length + ' ' + messages.length`), '0 0');
 // A page of its own keeps sendMessage as WebKit made it: only a content script can be ahead of the worker.
 const ownPage = load('chrome', 'extension', { before: `globalThis.native = () => 'native'; chrome.runtime.sendMessage = native;` });
 assert.equal(ownPage.run('chrome.runtime.sendMessage === native'), true);

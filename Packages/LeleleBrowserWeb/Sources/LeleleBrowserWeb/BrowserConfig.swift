@@ -1,0 +1,149 @@
+// Licensed under GPL-3.0. See LICENSE.
+//
+//  BrowserConfig.swift
+//  LeleleBrowser
+//
+//  Created by Maciek Bagiński on 31/07/2025.
+//
+
+import SwiftUI
+import WebKit
+import LeleleBrowserBlocker
+
+public class BrowserConfiguration {
+    public static let shared = BrowserConfiguration()
+    
+    private init() {}
+    
+    public lazy var webViewConfiguration: WKWebViewConfiguration = {
+        let config = WKWebViewConfiguration()
+        #if os(macOS)
+        BrowserConfiguration.applyProcessPool(to: config)
+        #endif
+
+        // Use default website data store for normal browsing
+        // Extensions use their own separate persistent storage managed by Apple
+        config.websiteDataStore = WKWebsiteDataStore.default()
+
+        // Configure JavaScript preferences for extension support
+        let preferences = WKWebpagePreferences()
+        preferences.allowsContentJavaScript = true
+        config.defaultWebpagePreferences = preferences
+
+        // Core WebKit preferences for extensions
+        config.preferences.javaScriptCanOpenWindowsAutomatically = false
+
+        // Media settings — use macOS default (no restrictions, matching Safari behavior).
+        // [.audio] blocks programmatic play() for media with audio tracks, which breaks
+        // YouTube autoplay since SPA navigations call play() outside user-gesture context.
+        config.mediaTypesRequiringUserActionForPlayback = []
+        
+        // "mediaDevicesEnabled" stays unset: it crashes WebContent (sandbox-denied AudioComponentRegistrar).
+        // Pages still get mic and camera from the Info.plist usage strings and device entitlements.
+
+        // CRITICAL: Enable HTML5 Fullscreen API
+        config.preferences.isElementFullscreenEnabled = true
+
+        // Enable background media playback
+        config.allowsAirPlayForMediaPlayback = true
+        
+        // User agent for better compatibility with Client Hints support
+        config.applicationNameForUserAgent = "Version/\(PlatformUserAgent.safariVersion) Safari/605.1.15"
+
+        // Clipboard, picture-in-picture, inline playback and the inspector are spelled differently
+        // per platform; see BrowserConfig+macOS.swift and BrowserConfig+iOS.swift.
+        BrowserConfiguration.applyPlatformPreferences(to: config)
+
+        // Note: webExtensionController will be set by ExtensionManager during initialization
+
+        // MARK: Passkey suppression
+        // Pending Apple approval of com.apple.developer.web-browser.public-key-credential,
+        // tell websites we don't support platform authenticators so they won't prompt for passkeys.
+        // TODO: Remove this once the entitlement is granted.
+        let passkeySuppress = WKUserScript(
+            source: """
+            // LeleleBrowser Passkey Suppression
+            (function() {
+                if (window.PublicKeyCredential) {
+                    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable = function() {
+                        return Promise.resolve(false);
+                    };
+                    if (PublicKeyCredential.isConditionalMediationAvailable) {
+                        PublicKeyCredential.isConditionalMediationAvailable = function() {
+                            return Promise.resolve(false);
+                        };
+                    }
+                }
+            })();
+            """,
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: false
+        )
+        config.userContentController.addUserScript(passkeySuppress)
+
+        return config
+    }()
+
+    /// Optional hook for ContentBlockerManager to apply rule lists to new controllers.
+    public var contentRuleListApplicator: ((WKUserContentController) -> Void)?
+
+    // MARK: - Fresh User Content Controller
+    // Creates a fresh WKUserContentController but preserves LeleleBrowser's own shared
+    // user scripts. This avoids cross-tab handler conflicts while keeping
+    // scripts that must be present on every tab.
+    //
+    // Only LeleleBrowser-owned scripts are copied. WKWebExtensionController injects its
+    // content scripts into every new controller itself, so copying them here as
+    // well would hand each new tab two of each. See WKUserScript+LeleleBrowserOwned.
+    public func freshUserContentController() -> WKUserContentController {
+        let controller = WKUserContentController()
+        for script in webViewConfiguration.userContentController.userScripts.leleleOwned {
+            controller.addUserScript(script)
+        }
+        // Apply content blocker rule lists if available
+        contentRuleListApplicator?(controller)
+        return controller
+    }
+
+    // MARK: - Cache-Optimized Configuration
+    // Derives from shared config to preserve process pool + extension controller
+    public func cacheOptimizedWebViewConfiguration() -> WKWebViewConfiguration {
+        let config = webViewConfiguration.copy() as! WKWebViewConfiguration
+        config.userContentController = freshUserContentController()
+        return config
+    }
+
+    // MARK: - Profile-Aware Configurations
+    // Derive from the shared config so extension controller + process pool are inherited
+    @MainActor
+    /// `base` is the configuration of the page's extension set; nil is the shared one.
+    public func webViewConfiguration(for profile: Profile, base: WKWebViewConfiguration? = nil) -> WKWebViewConfiguration {
+        let config = (base ?? webViewConfiguration).copy() as! WKWebViewConfiguration
+
+        // Fresh UCC per tab to avoid cross-tab handler conflicts (preserves shared scripts)
+        config.userContentController = freshUserContentController()
+
+        // Use the profile's website data store for isolation
+        // Private pages keep the controller; WebKit runs only extensions with
+        // `hasAccessToPrivateData` in a non-persistent store's pages.
+        config.websiteDataStore = profile.dataStore
+
+        return config
+    }
+
+    // MARK: - Chrome Web Store Integration
+    
+    /// Get the Web Store injector script
+    public static func webStoreInjectorScript() -> WKUserScript? {
+        guard let scriptPath = Bundle.main.path(forResource: "WebStoreInjector", ofType: "js"),
+              let scriptSource = try? String(contentsOfFile: scriptPath, encoding: .utf8) else {
+            return nil
+        }
+        
+        return WKUserScript(
+            source: scriptSource,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: true
+        )
+    }
+}

@@ -1,10 +1,10 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  ExtensionsStage.swift
-//  Nook
+//  LeleleBrowser
 //
 
-import NookDesign
+import LeleleBrowserDesign
 import SwiftUI
 
 struct ExtensionsStage: View {
@@ -40,7 +40,7 @@ struct ExtensionsStage: View {
                 .padding(20)
                 .frame(width: 400)
                 .background(.white.opacity(0.1))
-                .clipShape(NookDesign.Radius.shape(NookDesign.Radius.lg))
+                .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg))
 
             HStack(spacing: 12) {
                 Button {
@@ -52,7 +52,7 @@ struct ExtensionsStage: View {
                         .padding(.vertical, 12)
                         .padding(.horizontal, 24)
                         .background(.white)
-                        .clipShape(NookDesign.Radius.shape(NookDesign.Radius.lg))
+                        .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg))
                 }
                 .buttonStyle(ScaleButtonStyle())
 

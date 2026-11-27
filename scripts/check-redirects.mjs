@@ -5,7 +5,7 @@ import assert from 'assert';
 import vm from 'vm';
 
 const root = new URL('..', import.meta.url).pathname;
-const res = root + 'Packages/NookBlocker/Sources/NookBlocker/Resources/';
+const res = root + 'Packages/LeleleBrowserBlocker/Sources/LeleleBrowserBlocker/Resources/';
 const { rules, bodies } = JSON.parse(readFileSync(res + 'redirects.json', 'utf8'));
 
 // Patterns must mean what the filter syntax says. `||host^` covers the host and
@@ -45,7 +45,7 @@ const table = {
   bodies: { shim: bodies[Object.keys(bodies)[0]], gif },
 };
 const sandbox = {
-  window: { __nookRedirects: table },
+  window: { __leleleRedirects: table },
   document: { baseURI: 'https://site.example/' },
   URL, RegExp, Array, Object, atob: s => Buffer.from(s, 'base64').toString('binary'),
   decodeURIComponent, Response: class {}, XMLHttpRequest: function () {},
@@ -55,7 +55,7 @@ sandbox.XMLHttpRequest.prototype = { open() {}, send() {} };
 sandbox.Element.prototype = { setAttribute() {} };
 vm.createContext(sandbox);
 // Expose the private matcher for the check without altering the shipped file.
-const src = readFileSync(res + 'nook-stealth-redirects.js', 'utf8')
+const src = readFileSync(res + 'lelele-stealth-redirects.js', 'utf8')
   .replace('})();', '  window.__test = { bodyFor, decode };\n})();');
 vm.runInContext(src, sandbox);
 const { bodyFor, decode } = sandbox.window.__test;

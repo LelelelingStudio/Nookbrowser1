@@ -1,12 +1,12 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  ExtensionBatchApprovalCheck.swift
-//  Nook
+//  LeleleBrowser
 //
 //  When an install from an import list needs no sheet of its own, and when a package over an
 //  installed extension is a takeover. Compiles the shipped source directly:
 //
-//    swiftc Nook/Managers/ExtensionManager/ExtensionBatchApproval.swift \
+//    swiftc LeleleBrowser/Managers/ExtensionManager/ExtensionBatchApproval.swift \
 //           scripts/tests/ExtensionBatchApprovalCheck.swift \
 //           -o /tmp/extension-batch-check && /tmp/extension-batch-check
 //

@@ -1,20 +1,20 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  SidebarBottomBar.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Aether on 15/11/2025.
 //
 
 import SwiftUI
-import NookDesign
-import NookTabsCore
-import NookWeb
-import NookUI
+import LeleleBrowserDesign
+import LeleleBrowserTabsCore
+import LeleleBrowserWeb
+import LeleleBrowserUI
 
 /// Bottom bar of the sidebar containing menu button, spaces list, and new space button
 struct SidebarBottomBar: View {
-    @Environment(\.nookSettings) private var nookSettings
+    @Environment(\.leleleSettings) private var leleleSettings
     @EnvironmentObject var browserManager: BrowserManager
     @Environment(TabsController.self) private var tabs
     @Environment(BrowserWindowState.self) private var windowState
@@ -36,16 +36,16 @@ struct SidebarBottomBar: View {
                         .environment(windowState)
                 }
 
-                HStack(alignment: .center, spacing: NookDesign.SidebarChrome.gap) {
+                HStack(alignment: .center, spacing: LeleleBrowserDesign.SidebarChrome.gap) {
                     // Above the space dots, so its hint draws over them.
                     menuButton
                         .zIndex(1)
 
-                    if nookSettings.showAIAssistant {
+                    if leleleSettings.showAIAssistant {
                         Button("Toggle AI Assistant", systemImage: "sparkle") {
                             browserManager.toggleAISidebar(for: windowState)
                         }
-                        .nookSidebarIconButtons()
+                        .leleleSidebarIconButtons()
                         .help("Toggle AI Assistant")
                     }
 
@@ -59,14 +59,14 @@ struct SidebarBottomBar: View {
             }
             .frame(width: geo.size.width, height: geo.size.height)
         }
-        .frame(height: NookDesign.Size.bottomBar)
-        .padding(.horizontal, NookDesign.Spacing.sidebarInset)
+        .frame(height: LeleleBrowserDesign.Size.bottomBar)
+        .padding(.horizontal, LeleleBrowserDesign.Spacing.sidebarInset)
     }
 
     /// Room kept clear on each side of the dots: the wider cluster plus a gap.
     private var sideReserve: CGFloat {
-        let button = NookDesign.SidebarChrome.button, gap = NookDesign.SidebarChrome.gap
-        let left = nookSettings.showAIAssistant ? 2 * button + gap : button
+        let button = LeleleBrowserDesign.SidebarChrome.button, gap = LeleleBrowserDesign.SidebarChrome.gap
+        let left = leleleSettings.showAIAssistant ? 2 * button + gap : button
         return left + gap
     }
 
@@ -77,7 +77,7 @@ struct SidebarBottomBar: View {
             }
             // A finished download bounces the button its icon flew into.
             .symbolEffect(.bounce, value: browserManager.downloadManager.completedCount)
-            .nookSidebarIconButtons()
+            .leleleSidebarIconButtons()
             .anchorPreference(key: DownloadsButtonAnchorKey.self, value: .bounds) { $0 }
             .onHoverTracking { isHovered in
                 isMenuButtonHovered = isHovered
@@ -87,22 +87,22 @@ struct SidebarBottomBar: View {
             .overlay(alignment: .leading) {
                 if isMenuButtonHovered {
                     Text("View Library")
-                        .font(NookDesign.Font.label)
+                        .font(LeleleBrowserDesign.Font.label)
                         .foregroundStyle(.white)
-                        .padding(.horizontal, NookDesign.Spacing.md)
-                        .frame(height: NookDesign.Size.iconButton)
-                        .background(Color.black.opacity(0.85), in: NookDesign.Radius.shape(NookDesign.Radius.md))
+                        .padding(.horizontal, LeleleBrowserDesign.Spacing.md)
+                        .frame(height: LeleleBrowserDesign.Size.iconButton)
+                        .background(Color.black.opacity(0.85), in: LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.md))
                         .fixedSize()
-                        .offset(x: NookDesign.SidebarChrome.button + NookDesign.Spacing.xs)
+                        .offset(x: LeleleBrowserDesign.SidebarChrome.button + LeleleBrowserDesign.Spacing.xs)
                         .allowsHitTesting(false)
                         .transition(.opacity.combined(with: .offset(x: -4)))
                 }
             }
-            .animation(NookDesign.Motion.quick, value: isMenuButtonHovered)
+            .animation(LeleleBrowserDesign.Motion.quick, value: isMenuButtonHovered)
             .zIndex(1)
 
             DownloadIndicator()
-                .offset(x: NookDesign.Spacing.lg, y: -NookDesign.Spacing.lg)
+                .offset(x: LeleleBrowserDesign.Spacing.lg, y: -LeleleBrowserDesign.Spacing.lg)
         }
     }
     
@@ -159,7 +159,7 @@ struct SidebarBottomBar: View {
             Label("Actions", systemImage: "plus")
         }
         .menuStyle(.button)
-        .nookSidebarIconButtons()
+        .leleleSidebarIconButtons()
     }
 
     private var selectedPageIsWeb: Bool {

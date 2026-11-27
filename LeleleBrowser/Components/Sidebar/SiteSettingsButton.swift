@@ -1,0 +1,160 @@
+// Licensed under GPL-3.0. See LICENSE.
+//
+//  SiteSettingsButton.swift
+//  LeleleBrowser
+//
+
+import SwiftUI
+import WebKit
+import LeleleBrowserBlocker
+import LeleleBrowserDesign
+import LeleleBrowserSettings
+import LeleleBrowserUI
+import LeleleBrowserWeb
+
+/// URL bar button that opens per-site settings for the current http(s) page.
+struct SiteSettingsButton: View {
+    let session: PageSession
+    /// Keeps the button visible while its popover is open.
+    @Binding var isPresented: Bool
+    /// Owned by the URL bar so the button stays in the hierarchy while the alert is up.
+    @Binding var confirmClear: Bool
+    @EnvironmentObject private var browserManager: BrowserManager
+    /// The registrable domain the clear removes, resolved when the popover opens.
+    @State private var dataDomain: String?
+
+    private var host: String? {
+        guard ["http", "https"].contains(session.url.scheme?.lowercased()) else { return nil }
+        return session.url.host()
+    }
+
+    var body: some View {
+        if let host {
+            Button("Site Settings", systemImage: "switch.2") { isPresented = true }
+                .labelStyle(.iconOnly)
+                .buttonStyle(LeleleBrowserIconButtonStyle(size: LeleleBrowserDesign.Size.iconButton, radius: LeleleBrowserDesign.Radius.sm))
+                .foregroundStyle(Color.primary)
+                .help("Site Settings")
+                .popover(isPresented: $isPresented, arrowEdge: .bottom) {
+                    SiteSettingsPopover(session: session, host: host) {
+                        isPresented = false
+                        confirmClear = true
+                    }
+                    .id(host)
+                    .environmentObject(browserManager)
+                }
+                .onChange(of: isPresented) { _, open in
+                    guard open, let store = session.webView?.configuration.websiteDataStore else { return }
+                    dataDomain = nil
+                    Task { dataDomain = await CacheManager.siteDataDomain(host: host, in: store) }
+                }
+                .alert("Clear data for \(dataDomain ?? host)?", isPresented: $confirmClear) {
+                    Button("Clear", role: .destructive) {
+                        guard let store = session.webView?.configuration.websiteDataStore else { return }
+                        Task {
+                            await CacheManager.clearSiteData(host: host, in: store)
+                            session.webView?.reload()
+                        }
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("You'll be signed out of \(dataDomain ?? host) and its subdomains.")
+                }
+        }
+    }
+}
+
+private struct SiteSettingsPopover: View {
+    let session: PageSession
+    let host: String
+    let onClear: () -> Void
+    @EnvironmentObject private var browserManager: BrowserManager
+    @Environment(\.leleleSettings) private var leleleSettings
+    @State private var zoomPercent = 100
+    @State private var coveringRule: String?
+    @State private var camera = SitePermissionPolicy.ask
+    @State private var microphone = SitePermissionPolicy.ask
+    @State private var autoplay = SiteAutoplay.allowAll
+    @State private var keepsVideo = false
+
+    private let width: CGFloat = 280
+
+    private var blocksAds: Bool { coveringRule == nil }
+    private var ruleIsParent: Bool { coveringRule.map { $0 != host.lowercased() } ?? false }
+    /// Feeds never move to the sidebar on their own, whatever is chosen.
+    private var sidebarVideoAllowed: Bool {
+        URL(string: "https://\(host)").map(SidebarPiPController.allowsAutomatic) ?? true
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: LeleleBrowserDesign.Spacing.lg) {
+            Text(host).font(LeleleBrowserDesign.Font.secondary.weight(.semibold)).lineLimit(1)
+
+            HStack {
+                Text("Zoom")
+                Spacer()
+                Text("\(zoomPercent)%").foregroundStyle(.secondary)
+                if zoomPercent != 100 {
+                    Button("Reset") {
+                        if let webView = session.webView { browserManager.zoomManager.resetZoom(for: webView) }
+                        zoomPercent = 100
+                    }
+                }
+            }
+
+            VStack(alignment: .leading, spacing: LeleleBrowserDesign.Spacing.xs) {
+                Toggle("Block ads and trackers", isOn: Binding(get: { blocksAds }, set: setBlocksAds))
+                    .disabled(ruleIsParent)
+                if let rule = coveringRule, ruleIsParent {
+                    Text("Allowed by a rule for \(rule) in Settings > Ad Blocker.")
+                        .font(LeleleBrowserDesign.Font.micro).foregroundStyle(.secondary)
+                }
+            }
+
+            policyPicker("Camera", .camera, $camera)
+            policyPicker("Microphone", .microphone, $microphone)
+
+            Picker("Auto-Play", selection: Binding(get: { autoplay }, set: {
+                autoplay = $0
+                leleleSettings.setAutoplay($0, for: host)
+            })) {
+                ForEach(SiteAutoplay.allCases, id: \.self) { Text($0.label).tag($0) }
+            }
+            .pickerStyle(.menu)
+
+            Toggle("Keep videos playing in the sidebar", isOn: Binding(get: { sidebarVideoAllowed && keepsVideo }, set: {
+                keepsVideo = $0
+                leleleSettings.setAutoPictureInPicture($0, for: host)
+            }))
+            .disabled(!sidebarVideoAllowed)
+
+            Button("Clear Cookies and Site Data", role: .destructive, action: onClear)
+        }
+        .font(LeleleBrowserDesign.Font.secondary)
+        .padding(LeleleBrowserDesign.Spacing.xl)
+        .frame(width: width)
+        .onAppear {
+            zoomPercent = Int(((session.webView?.pageZoom ?? 1) * 100).rounded())
+            coveringRule = AllowlistRule.covering(host, in: leleleSettings.adBlockerWhitelist)
+            camera = leleleSettings.permission(.camera, for: host)
+            microphone = leleleSettings.permission(.microphone, for: host)
+            autoplay = leleleSettings.autoplay(for: host)
+            keepsVideo = leleleSettings.autoPictureInPicture(for: host)
+        }
+    }
+
+    private func setBlocksAds(_ on: Bool) {
+        browserManager.contentBlockerManager.allowDomain(coveringRule ?? host.lowercased(), allowed: !on)
+        coveringRule = AllowlistRule.covering(host, in: leleleSettings.adBlockerWhitelist)
+    }
+
+    private func policyPicker(_ title: String, _ permission: SitePermission, _ value: Binding<SitePermissionPolicy>) -> some View {
+        Picker(title, selection: Binding(get: { value.wrappedValue }, set: {
+            value.wrappedValue = $0
+            leleleSettings.setPermission(permission, to: $0, for: host)
+        })) {
+            ForEach(SitePermissionPolicy.allCases, id: \.self) { Text($0.label).tag($0) }
+        }
+        .pickerStyle(.menu)
+    }
+}

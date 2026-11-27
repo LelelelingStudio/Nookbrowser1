@@ -1,12 +1,12 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  SafariImportFlow.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 20/02/2026.
 //
 
-import NookDesign
+import LeleleBrowserDesign
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -98,17 +98,17 @@ struct SafariImportFlow: View {
             }
             .padding(24)
             .background(.white.opacity(0.1))
-            .clipShape(NookDesign.Radius.shape(NookDesign.Radius.lg))
+            .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg))
 
             VStack(spacing: 12) {
                 ZStack {
-                    NookDesign.Radius.shape(NookDesign.Radius.lg)
+                    LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg)
                         .strokeBorder(
                             style: StrokeStyle(lineWidth: 2, dash: [8, 4])
                         )
                         .foregroundStyle(isDropTargeted ? .white : .white.opacity(0.4))
                         .background(
-                            NookDesign.Radius.shape(NookDesign.Radius.lg)
+                            LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg)
                                 .fill(isDropTargeted ? .white.opacity(0.15) : .white.opacity(0.05))
                         )
                         .animation(.easeInOut(duration: 0.15), value: isDropTargeted)
@@ -135,7 +135,7 @@ struct SafariImportFlow: View {
                                 .padding(.vertical, 8)
                                 .padding(.horizontal, 16)
                                 .background(.white)
-                                .clipShape(NookDesign.Radius.shape(NookDesign.Radius.md))
+                                .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.md))
                         }
                         .buttonStyle(ScaleButtonStyle())
                     }
@@ -153,7 +153,7 @@ struct SafariImportFlow: View {
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .background(.red.opacity(0.1))
-                        .clipShape(NookDesign.Radius.shape(NookDesign.Radius.sm))
+                        .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.sm))
                         .frame(width: 180)
                         .multilineTextAlignment(.center)
                 }
@@ -195,7 +195,7 @@ struct SafariImportFlow: View {
             }
             .padding(20)
             .background(.white.opacity(0.1))
-            .clipShape(NookDesign.Radius.shape(NookDesign.Radius.lg))
+            .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg))
             .fixedSize(horizontal: true, vertical: true)
 
             HStack(spacing: 12) {
@@ -213,7 +213,7 @@ struct SafariImportFlow: View {
                     .padding(.vertical, 12)
                     .padding(.horizontal, 24)
                     .background(.white)
-                    .clipShape(NookDesign.Radius.shape(NookDesign.Radius.lg))
+                    .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg))
                 }
                 .buttonStyle(ScaleButtonStyle())
                 .disabled(!importBookmarks && !importHistory)
@@ -266,7 +266,7 @@ struct SafariImportFlow: View {
         }
         .padding(20)
         .background(.white.opacity(0.1))
-        .clipShape(NookDesign.Radius.shape(NookDesign.Radius.lg))
+        .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg))
         .fixedSize(horizontal: true, vertical: true)
 
         Button {
@@ -283,7 +283,7 @@ struct SafariImportFlow: View {
             .padding(.vertical, 12)
             .padding(.horizontal, 24)
             .background(.white)
-            .clipShape(NookDesign.Radius.shape(NookDesign.Radius.lg))
+            .clipShape(LeleleBrowserDesign.Radius.shape(LeleleBrowserDesign.Radius.lg))
         }
         .buttonStyle(ScaleButtonStyle())
     }

@@ -1,0 +1,65 @@
+// Licensed under GPL-3.0. See LICENSE.
+//
+//  BrowserManager+Tweaks.swift
+//  LeleleBrowser
+//
+//  Created by Bain Gurley on 17/09/2026.
+//
+//  The app side of LeleleBrowserTweaks' two seams: window and space work for Air Traffic
+//  Control, and the download path for the social media download button.
+//
+
+import Foundation
+import OSLog
+import WebKit
+import LeleleBrowserTabsCore
+import LeleleBrowserTweaks
+import LeleleBrowserWeb
+
+private let tweaksLog = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Lelele Browser", category: "SiteRouting")
+
+extension BrowserManager: SiteRoutingHost {
+    func route(url: URL, toSpace spaceID: UUID, from page: AnyObject?) -> Bool {
+        let session = page as? PageSession
+
+        // An agent page stays in the Agent space: routing would show the person a new tab.
+        guard session?.isPrivate != true, session?.isAgentPage != true else {
+            return false
+        }
+
+        guard tabs.space(spaceID) != nil else {
+            tweaksLog.debug("Route skipped: target space \(spaceID) no longer exists")
+
+            return false
+        }
+
+        // Page navigation stays in its own window. External links can arrive with no window open.
+        guard let window = session.flatMap({ tabs.window(for: $0) })
+                ?? (page == nil ? openBrowserWindow() : nil),
+              !window.isIncognito else {
+            return false
+        }
+
+        // A page already in the target space loads in place. A link from another app has no
+        // page, and still opens as a tab there.
+        guard session == nil || window.spaceID != spaceID else { return false }
+
+        // Deferred: callers are WebKit policy callbacks. Selecting the new tab shows its space.
+        Task { @MainActor [tabs] in
+            guard let id = tabs.open(url: url, in: window, placement: .newTab, parent: .tabs(spaceID: spaceID)) else { return }
+            tabs.inheritGuard(id, from: session?.itemID)
+            if let source = session?.itemID { tabs.routedFrom[id] = source }
+        }
+        return true
+    }
+
+    func liveSpaceIDs() -> Set<UUID> {
+        Set(tabs.orderedSpaces.map(\.id))
+    }
+}
+
+extension BrowserManager: MediaDownloading {
+    func downloadImage(at url: URL, from webView: WKWebView) {
+        (webView as? FocusableWKWebView)?.downloadImage(from: url)
+    }
+}

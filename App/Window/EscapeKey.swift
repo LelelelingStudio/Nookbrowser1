@@ -1,7 +1,7 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  EscapeKey.swift
-//  Nook
+//  LeleleBrowser
 //
 //  An Escape the page does not take comes back from WebKit as `doCommandBySelector:` with
 //  `cancelOperation:`. In full screen `-[NSWindow doCommandBySelector:]` leaves full screen itself

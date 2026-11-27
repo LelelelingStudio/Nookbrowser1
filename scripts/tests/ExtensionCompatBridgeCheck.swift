@@ -1,11 +1,11 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  ExtensionCompatBridgeCheck.swift
-//  Nook
+//  LeleleBrowser
 //
 //  The rules of the extension bridge that need no running extension. Compiles the shipped sources:
 //
-//    swiftc Nook/Managers/ExtensionManager/ExtensionCompat[A-Z]*.swift \
+//    swiftc LeleleBrowser/Managers/ExtensionManager/ExtensionCompat[A-Z]*.swift \
 //           scripts/tests/ExtensionCompatBridgeCheck.swift \
 //           -o /tmp/extension-bridge-check && /tmp/extension-bridge-check
 //
@@ -30,7 +30,7 @@ struct ExtensionCompatBridgeCheck {
         print("ExtensionCompatBridgeCheck passed")
     }
 
-    /// The consent sheet names a permission WebKit does not know when the manifest asks for it and Nook answers it.
+    /// The consent sheet names a permission WebKit does not know when the manifest asks for it and LeleleBrowser answers it.
     @MainActor
     static func consent() {
         typealias B = ExtensionCompatBridge
@@ -38,7 +38,7 @@ struct ExtensionCompatBridgeCheck {
         [ExtensionCompatIdentity(), ExtensionCompatOffscreen(), ExtensionCompatSidePanel()].forEach(bridge.register)
         precondition(bridge.gatedPermissions == ["identity", "offscreen", "sidePanel"])
 
-        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("nook-consent-check-\(UUID().uuidString)")
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("lelele-consent-check-\(UUID().uuidString)")
         try! FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: folder) }
         let manifest: [String: Any] = [
@@ -53,7 +53,7 @@ struct ExtensionCompatBridgeCheck {
         while loaded == nil && Date() < end { RunLoop.main.run(until: Date() + 0.02) }
         guard let loaded else { preconditionFailure("the test extension did not load") }
 
-        // Nook's own channel stays hidden. A name nothing answers stays out, and so does an optional one.
+        // LeleleBrowser's own channel stays hidden. A name nothing answers stays out, and so does an optional one.
         let bridged: Set = ["offscreen", "idle", "notifications", "management", "identity", "sidePanel", "webNavigation"]
         let shown = B.consentPermissions(of: loaded, hiding: ["nativeMessaging"], bridged: bridged)
         precondition(shown == ["storage", "management", "identity"], "\(shown.sorted())")
@@ -70,7 +70,7 @@ struct ExtensionCompatBridgeCheck {
         precondition(!B.mustWake(backgroundListens: false, reachedBackground: false))
     }
 
-    /// `idle`: the state an extension is told, and when Nook next has to look.
+    /// `idle`: the state an extension is told, and when LeleleBrowser next has to look.
     @MainActor
     static func idle() {
         typealias Idle = ExtensionCompatIdle
@@ -100,11 +100,11 @@ struct ExtensionCompatBridgeCheck {
     static func notifications() {
         typealias N = ExtensionCompatNotifications
         // The extension's own id may hold anything. The extension it belongs to never changes with it.
-        for id in ["plain", "with.dots", "line\nbreak", "\n\nnook.ext\nother\nx", ""] {
+        for id in ["plain", "with.dots", "line\nbreak", "\n\nlelele.ext\nother\nx", ""] {
             let parsed = N.parse(N.identifier(id, in: "abcdef"))
             precondition(parsed?.contextID == "abcdef" && parsed?.id == id)
         }
-        precondition(N.parse("focusable-webview-1") == nil && N.parse("nook.ext\n\nx") == nil && N.parse("other\nabc\nx") == nil)
+        precondition(N.parse("focusable-webview-1") == nil && N.parse("lelele.ext\n\nx") == nil && N.parse("other\nabc\nx") == nil)
 
         // The same extension in two extension sets: each set answers only for what it posted.
         let plain = N(bridge: ExtensionCompatBridge()), scoped = N(bridge: ExtensionCompatBridge())
@@ -157,7 +157,7 @@ struct ExtensionCompatBridgeCheck {
         precondition(mv3["id"] as? String == "abc" && mv3["enabled"] as? Bool == true && mv3["type"] as? String == "extension")
         // A name still in its `__MSG_` form is not shown.
         precondition(mv3["shortName"] as? String == "Name")
-        // The permission Nook added for its own channel is not the extension's.
+        // The permission LeleleBrowser added for its own channel is not the extension's.
         precondition(mv3["permissions"] as? [String] == ["tabs", "storage"])
         precondition(mv3["hostPermissions"] as? [String] == ["https://*.example.com/*"])
         precondition(mv3["optionsUrl"] as? String == "webkit-extension://abc/options.html")
@@ -216,7 +216,7 @@ struct ExtensionCompatBridgeCheck {
             connection.start(queue: .main)
             connection.receive(minimumIncompleteLength: 1, maximumLength: 8192) { data, _, _, _ in
                 let path = String(decoding: data ?? Data(), as: UTF8.self).split(separator: " ").dropFirst().first.map(String.init) ?? "/"
-                let moved = ["/go": back, "/hop": "/page", "/app": "nook://open?url=x"][path]
+                let moved = ["/go": back, "/hop": "/page", "/app": "lelele://open?url=x"][path]
                 let body = path == "/late" ? "<script>setTimeout(function () { location.href = '\(back)' }, 200)</script>" : "<body>Sign in"
                 let answer = moved.map { "HTTP/1.1 302 Found\r\nLocation: \($0)\r\nContent-Length: 0\r\nConnection: close\r\n\r\n" }
                     ?? "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: \(body.utf8.count)\r\nConnection: close\r\n\r\n\(body)"

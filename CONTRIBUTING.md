@@ -1,6 +1,6 @@
-# Contributing to Nook
+# Contributing to LeleleBrowser
 
-Thanks for your interest in contributing to Nook. This covers how to set up the project, what we expect in a pull request, and how to report issues.
+Thanks for your interest in contributing to LeleleBrowser. This covers how to set up the project, what we expect in a pull request, and how to report issues.
 
 ## AI Assistance Notice
 
@@ -18,18 +18,18 @@ You need an Apple Silicon Mac and Xcode 26 or later.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/nook-browser/Nook.git
-   cd Nook
+   git clone https://github.com/LelelelingStudio/LeleleBrowser.git
+   cd LeleleBrowser
    ```
 
-2. **Install the Metal Toolchain** (Xcode 26 and later ship without it; Nook has one shader)
+2. **Install the Metal Toolchain** (Xcode 26 and later ship without it; LeleleBrowser has one shader)
    ```bash
    xcodebuild -downloadComponent MetalToolchain
    ```
 
 3. **Open in Xcode**
    ```bash
-   open Nook.xcodeproj
+   open LeleleBrowser.xcodeproj
    ```
    Swift packages resolve on their own the first time the project opens.
 
@@ -39,11 +39,11 @@ You need an Apple Silicon Mac and Xcode 26 or later.
 
    To check that your change compiles without a signing team:
    ```bash
-   xcodebuild -scheme Nook -configuration Debug -arch arm64 -derivedDataPath build \
+   xcodebuild -scheme LeleleBrowser -configuration Debug -arch arm64 -derivedDataPath build \
      CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
    ```
 
-There is no app test target. Logic with its own checks lives in `Checks/` folders beside each package's sources and in `scripts/tests/`; each file says how to run it. `Packages/NookTabsCore` also has a `swift test` suite.
+There is no app test target. Logic with its own checks lives in `Checks/` folders beside each package's sources and in `scripts/tests/`; each file says how to run it. `Packages/LeleleBrowserTabsCore` also has a `swift test` suite.
 
 ## Code Style & Standards
 
@@ -51,7 +51,7 @@ There is no app test target. Logic with its own checks lives in `Checks/` folder
 
 - Follow existing SwiftUI/AppKit patterns in the codebase
 - Use the established file organization structure
-- Use the design tokens in `Packages/NookDesign` for sizes, spacing, colors, fonts and animations instead of literal values
+- Use the design tokens in `Packages/LeleleBrowserDesign` for sizes, spacing, colors, fonts and animations instead of literal values
 - Prefer modern Swift/SwiftUI APIs when possible
 
 ### Compatibility & OS Versions
@@ -100,7 +100,7 @@ There is no app test target. Logic with its own checks lives in `Checks/` folder
 Be descriptive and thorough. Include:
 
 - **macOS version**
-- **Nook version**
+- **LeleleBrowser version**
 - **Clear steps to reproduce the issue**
 - **Expected vs actual behavior**
 - **Screenshots if applicable**
@@ -111,7 +111,7 @@ Be descriptive and thorough. Include:
 Provide detailed context. Include:
 
 - **Clear description of the feature and its use case**
-- **Explain how it fits with Nook's goals** (fast, built-in ad blocking, light on battery)
+- **Explain how it fits with LeleleBrowser's goals** (fast, built-in ad blocking, light on battery)
 - **Consider implementation complexity and user impact**
 - **Check that similar functionality doesn't already exist**
 
@@ -123,4 +123,4 @@ Provide detailed context. Include:
 
 ## License
 
-By contributing to Nook, you agree that your contributions will be licensed under the GPL-3.0 License.
+By contributing to LeleleBrowser, you agree that your contributions will be licensed under the GPL-3.0 License.

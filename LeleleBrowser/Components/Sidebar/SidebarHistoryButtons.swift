@@ -1,0 +1,65 @@
+// Licensed under GPL-3.0. See LICENSE.
+//
+//  SidebarHistoryButtons.swift
+//  LeleleBrowser
+//
+//  Created by Maciek Bagiński on 30/07/2025.
+//
+import SwiftUI
+import WebKit
+import LeleleBrowserDesign
+import LeleleBrowserWeb
+import LeleleBrowserUI
+
+/// Back, forward and reload in the title row, as separate icon buttons. A sidebar dragged too
+/// narrow for them drops them from the row.
+struct SidebarHistoryButtons: View {
+    @EnvironmentObject var browserManager: BrowserManager
+    @Environment(BrowserWindowState.self) private var windowState
+
+    var body: some View {
+        HStack(spacing: LeleleBrowserDesign.SidebarChrome.gap) {
+            Button("Go Back", systemImage: "arrow.left", action: goBack)
+                .disabled(!canGoBack)
+                .contextMenu {
+                    NavigationHistoryContextMenu(historyType: .back, windowState: windowState)
+                }
+            Button("Go Forward", systemImage: "arrow.right", action: goForward)
+                .disabled(!canGoForward)
+                .contextMenu {
+                    NavigationHistoryContextMenu(historyType: .forward, windowState: windowState)
+                }
+            Button(action: reloadOrStop) {
+                // No `.symbolEffect(.replace)` here: it held the main thread about 130 ms at each end of a load.
+                Image(systemName: session?.isLoading == true ? "xmark" : "arrow.clockwise")
+            }
+            .accessibilityLabel(session?.isLoading == true ? "Stop Loading" : "Reload")
+        }
+        .leleleSidebarIconButtons()
+    }
+
+    /// Nil while another window holds the page: its controls stay inert until Move Here.
+    private var session: PageSession? {
+        browserManager.tabs.controllableSession(in: windowState)
+    }
+
+    private var canGoBack: Bool { session?.canGoBackOrReturn ?? false }
+    private var canGoForward: Bool { session?.canGoForward ?? false }
+
+    /// This window's own view of the page, so a clone navigates in its window.
+    private var windowWebView: WKWebView? {
+        session.flatMap { browserManager.webViewCoordinator?.getWebView(for: $0.itemID, in: windowState.id) }
+    }
+
+    private func goBack() {
+        session?.goBack(in: windowWebView)
+    }
+
+    private func goForward() {
+        if let webView = windowWebView { webView.goForward() } else { session?.goForward() }
+    }
+
+    private func reloadOrStop() {
+        if session?.isLoading == true { session?.stop() } else { session?.refresh() }
+    }
+}

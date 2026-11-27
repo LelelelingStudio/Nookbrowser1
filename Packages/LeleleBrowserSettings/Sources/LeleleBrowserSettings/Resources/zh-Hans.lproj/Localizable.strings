@@ -1,0 +1,30 @@
+/* 简体中文翻译。键名为英文原文。 */
+
+"Language" = "语言";
+"Follow System" = "跟随系统";
+"English" = "English";
+"简体中文" = "简体中文";
+"Lelele Browser follows your system language by default. You can override it here." = "Lelele Browser 默认跟随系统语言。你也可以在这里手动指定。";
+
+"Tab Management" = "标签管理";
+"Performance" = "性能";
+"Performance Mode" = "性能优先";
+"Power Saving" = "省内存模式";
+"Standard" = "标准";
+"Aggressively unloads tabs to minimize memory and battery usage. Best for laptops on battery." = "积极卸载后台标签页，尽量降低内存和电量占用。适合使用电池的场景。";
+"Balanced tab management for everyday browsing." = "日常浏览使用的均衡标签页管理策略。";
+"Keeps tabs loaded longer for power users with many tabs open." = "让标签页保持加载更久，适合喜欢一次打开很多页面的用户。";
+"Unload All Inactive Tabs" = "卸载所有非活动标签页";
+"On Startup" = "启动时";
+"Default search engine" = "默认搜索引擎";
+"Automatic Memory Saver" = "自动省内存";
+"Switch to Memory Saver automatically when Low Power Mode is active." = "开启低电量模式时自动切换到省内存策略。";
+"Loaded tabs: %lld" = "已加载标签：%lld";
+"Links from other apps" = "来自其他应用的链接";
+"Allow lelele:// links" = "允许 lelele:// 链接";
+"Lets launchers like Raycast and Alfred open pages, search and switch spaces." = "允许 Raycast、Alfred 等启动器打开页面、搜索和切换空间。";
+"Security" = "安全";
+"Warn before opening a site over HTTP" = "通过 HTTP 打开网站前提醒";
+"Lelele Browser always tries HTTPS first. Ask before opening a site that only works over HTTP." = "Lelele Browser 总是优先尝试 HTTPS。若网站仅支持 HTTP，会先询问你。";
+"About" = "关于";
+"Version" = "版本";

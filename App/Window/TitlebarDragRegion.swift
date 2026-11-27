@@ -1,7 +1,7 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  TitlebarDragRegion.swift
-//  Nook
+//  LeleleBrowser
 //
 //  AppKit asks the window's content view which parts of the title band must not move the window.
 //  SwiftUI's hosting view answers with an empty region and leaves out the AppKit views inside it,

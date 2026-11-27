@@ -1,5 +1,5 @@
 // Licensed under GPL-3.0. See LICENSE.
-// swiftc Nook/Components/Sidebar/Menu/LibrarySwipeDecision.swift scripts/tests/LibrarySwipeDecisionCheck.swift -o /tmp/ls && /tmp/ls
+// swiftc LeleleBrowser/Components/Sidebar/Menu/LibrarySwipeDecision.swift scripts/tests/LibrarySwipeDecisionCheck.swift -o /tmp/ls && /tmp/ls
 
 @main
 struct LibrarySwipeDecisionCheck {

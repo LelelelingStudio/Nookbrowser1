@@ -2,27 +2,27 @@
 // Runs the real SwiftUI application, launched by macOS with an external URL.
 import AppKit
 import SwiftUI
-import NookSettings
-import NookTabsCore
-import NookWeb
-@testable import Nook
+import LeleleBrowserSettings
+import LeleleBrowserTabsCore
+import LeleleBrowserWeb
+@testable import LeleleBrowser
 
 @main
 struct BrowserColdLaunchCheck {
     @MainActor
     static func main() {
-        precondition(Bundle.main.bundleIdentifier?.hasPrefix("com.nook.window-check.") == true,
+        precondition(Bundle.main.bundleIdentifier?.hasPrefix("com.lelele.window-check.") == true,
                      "Run through check-browser-windows.py to isolate application data")
 
         let defaults = UserDefaults.standard
-        let report = URL(fileURLWithPath: defaults.string(forKey: "NookColdCheckReport")!)
-        let scenario = defaults.string(forKey: "NookColdCheckCase")!
+        let report = URL(fileURLWithPath: defaults.string(forKey: "LeleleBrowserColdCheckReport")!)
+        let scenario = defaults.string(forKey: "LeleleBrowserColdCheckCase")!
         let expectedWindows = scenario == "restored" ? 2 : 1
         let routed = scenario != "tabs"
         let incoming = URL(string: "https://window-check.invalid/\(scenario)")!
         let personal = UUID()
         let work = UUID()
-        let settings = NookSettingsService()
+        let settings = LeleleBrowserSettingsService()
         let store = TabStore(directory: TabsController.defaultDirectory)
         var tree = TabTree.firstLaunch(spaceID: personal, homeURL: URL(string: "about:blank")!)
         var device = DeviceState()
@@ -58,6 +58,6 @@ struct BrowserColdLaunchCheck {
             exit(passed ? 0 : 1)
         }
 
-        NookApp.main()
+        LeleleBrowserApp.main()
     }
 }

@@ -1,12 +1,12 @@
-// uBO's scriptlets read globals its own injector defines. One Nook's wrapper lacks throws
+// uBO's scriptlets read globals its own injector defines. One LeleleBrowser's wrapper lacks throws
 // inside the crate's per-scriptlet try/catch, so the scriptlet silently does nothing.
 //   node scripts/check-scriptlet-globals.mjs
 import { readFileSync, readdirSync } from 'fs';
 import assert from 'assert';
 
 const root = new URL('..', import.meta.url).pathname;
-const dir = root + 'Packages/NookBlocker/ThirdParty/ubo-scriptlets/src/js/resources/';
-const wrapper = readFileSync(root + 'Packages/NookBlocker/Sources/NookBlocker/AdvancedRulesEngine.swift', 'utf8');
+const dir = root + 'Packages/LeleleBrowserBlocker/ThirdParty/ubo-scriptlets/src/js/resources/';
+const wrapper = readFileSync(root + 'Packages/LeleleBrowserBlocker/Sources/LeleleBrowserBlocker/AdvancedRulesEngine.swift', 'utf8');
 
 const expected = new Set();
 for (const file of readdirSync(dir).filter(f => f.endsWith('.js'))) {

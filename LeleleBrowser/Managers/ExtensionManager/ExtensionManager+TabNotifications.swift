@@ -1,0 +1,219 @@
+// Licensed under GPL-3.0. See LICENSE.
+//
+//  ExtensionManager+TabNotifications.swift
+//  LeleleBrowser
+//
+//  Controller event notifications for tabs and action anchor management
+//
+
+import AppKit
+import Foundation
+import os
+import WebKit
+import LeleleBrowserWeb
+
+extension ExtensionManager {
+
+    // MARK: - Adapters
+
+    /// Adapter for a tab item; nil for folders, unknown ids and Agent space items. Private items
+    /// get one too: WebKit hides them from extensions without `hasAccessToPrivateData`.
+    func adapter(for itemID: UUID) -> ExtensionTabAdapter? {
+        if browserManagerRef?.tabs.isInAgentSpace(itemID) == true { return nil }
+        // A kept adapter is this set's: `closeTabsOfOtherSets` drops one when its tab leaves,
+        // and a closing tab is already out of the tree, so it cannot be asked for its set.
+        if let existing = tabAdapters[itemID] { return existing }
+        // A tab of another set's profile does not exist to this set's extensions.
+        guard ExtensionSetRegistry.shared.setID(forItem: itemID) == setID else { return nil }
+        return adapter(inThisSet: itemID)
+    }
+
+    /// `adapter(for:)` for an item already known to be in this set and outside the Agent space.
+    private func adapter(inThisSet itemID: UUID) -> ExtensionTabAdapter? {
+        if let existing = tabAdapters[itemID] { return existing }
+        guard let bm = browserManagerRef, let item = bm.tabs.item(itemID), !item.isFolder else { return nil }
+        // ponytail: adapters for items closed without ever loading stay cached (a few bytes each);
+        // prune against the tree if that ever shows up.
+        let created = ExtensionTabAdapter(itemID: itemID, browserManager: bm, manager: self)
+        tabAdapters[itemID] = created
+        return created
+    }
+
+    /// Adapter for a tab the controller already knows about; nil for unopened tabs.
+    func openedAdapter(for itemID: UUID) -> ExtensionTabAdapter? {
+        openedTabIDs.contains(itemID) ? adapter(for: itemID) : nil
+    }
+
+    /// Adapter for a window, created (and announced to the controller) on first use. Nil while
+    /// the window shows a space in another set.
+    func windowAdapter(for window: BrowserWindowState) -> ExtensionWindowAdapter? {
+        guard ExtensionSetRegistry.shared.setID(for: window) == setID else { return nil }
+        if let existing = windowAdapters[window.id] { return existing }
+        guard let bm = browserManagerRef else { return nil }
+        let created = ExtensionWindowAdapter(window: window, browserManager: bm, manager: self)
+        windowAdapters[window.id] = created
+        extensionController?.didOpenWindow(created)
+        return created
+    }
+
+    /// The window's tabs as `TabsController.displayOrder(in:)` lists them, kept per space until
+    /// the tab model changes. Everything that order reads is observed except
+    /// `WindowRegistry.windows`, which only matters for a private space, and a private space
+    /// lives only in its own window: `attach(window:)` makes its tree before anything can ask
+    /// for it, and `detach(window:)` clears that tree.
+    func tabOrder(in window: BrowserWindowState) -> ExtensionTabOrder {
+        guard let tabs = browserManagerRef?.tabs, let spaceID = window.spaceID else { return .empty }
+        return tabOrders.order(for: spaceID) { tabs.displayOrder(inSpace: spaceID) }
+    }
+
+    /// Adapters for the window's tabs, in `tabOrder(in:)` order. They all sit in the window's
+    /// space, so one Agent space check and one set check cover the list: WebKit lists a window's
+    /// tabs once per tab in a query, and each per-item check sorts every space.
+    func adapters(in window: BrowserWindowState) -> [ExtensionTabAdapter] {
+        guard let tabs = browserManagerRef?.tabs, window.spaceID != tabs.agentSpaceID,
+              ExtensionSetRegistry.shared.setID(for: window) == setID else { return [] }
+        return tabOrder(in: window).ids.compactMap { adapter(inThisSet: $0) }
+    }
+
+    /// Every window, focused first.
+    var openWindowAdapters: [ExtensionWindowAdapter] {
+        guard let registry = browserManagerRef?.windowRegistry else { return [] }
+        let active = registry.activeWindow
+        let ordered = (active.map { [$0] } ?? []) + registry.allWindows.filter { $0 !== active }
+        return ordered.compactMap { windowAdapter(for: $0) }
+    }
+
+    /// A window that switched to another set's space is closed to this set; one that switched to
+    /// this set's space is announced, focused if it is the active window, with its selected tab.
+    func windowSetMayHaveChanged(_ window: BrowserWindowState) {
+        guard let controller = extensionController else { return }
+        let runsHere = ExtensionSetRegistry.shared.setID(for: window) == setID
+        if !runsHere, let adapter = windowAdapters.removeValue(forKey: window.id) {
+            controller.didCloseWindow(adapter)
+        } else if runsHere, windowAdapters[window.id] == nil, let adapter = windowAdapter(for: window),
+                  browserManagerRef?.windowRegistry?.activeWindow === window {
+            controller.didFocusWindow(adapter)
+            if let session = browserManagerRef?.tabs.selectedSession(in: window), !session.isUnloaded {
+                notifyTabActivated(new: session, previous: nil)
+            }
+        }
+    }
+
+    // MARK: - Window Events
+
+    /// Window focus and close come from AppKit notifications; the tab model has no window hooks.
+    func observeWindowEvents() {
+        let center = NotificationCenter.default
+        observers.append(center.addObserver(forName: NSWindow.didBecomeMainNotification, object: nil, queue: .main) { [weak self] note in
+            let nsWindow = note.object as? NSWindow
+            MainActor.assumeIsolated { self?.windowBecameMain(nsWindow) }
+        })
+        observers.append(center.addObserver(forName: NSWindow.willCloseNotification, object: nil, queue: .main) { [weak self] note in
+            let nsWindow = note.object as? NSWindow
+            MainActor.assumeIsolated { self?.windowWillClose(nsWindow) }
+        })
+    }
+
+    private func windowBecameMain(_ nsWindow: NSWindow?) {
+        guard let nsWindow, let controller = extensionController, let bm = browserManagerRef else { return }
+        guard let window = bm.windowRegistry?.allWindows.first(where: { $0.window === nsWindow }) else {
+            // A mini window: its page becomes the active tab of the window hosting it.
+            if let page = openedTabIDs.lazy.compactMap({ self.tabAdapters[$0]?.detached }).first(where: { $0.webView?.window === nsWindow }),
+               let host = tabAdapters[page.itemID]?.hostWindow.flatMap({ windowAdapter(for: $0) }) {
+                controller.didFocusWindow(host)
+                notifyTabActivated(new: page, previous: nil)
+            }
+            return
+        }
+        guard let adapter = windowAdapter(for: window) else { return }
+        controller.didFocusWindow(adapter)
+        // Extensions resolve the active tab from the focused window, so switching windows
+        // switches the active tab too.
+        if let session = detachedAdapters(in: window).first(where: { $0.isInFront })?.detached
+            ?? bm.tabs.selectedSession(in: window) {
+            notifyTabActivated(new: session, previous: nil)
+        }
+    }
+
+    private func windowWillClose(_ nsWindow: NSWindow?) {
+        guard let nsWindow,
+              let adapter = windowAdapters.values.first(where: { $0.state?.window === nsWindow })
+        else { return }
+        windowAdapters[adapter.windowID] = nil
+        extensionController?.didCloseWindow(adapter)
+    }
+
+    /// Give each loaded extension explicit access to `url`, but only when that extension's
+    /// granted match patterns already cover it. Some WebKit builds did not treat a granted
+    /// pattern as access to a URL (content scripts skipped, `tabs.query` without URLs), so
+    /// this makes the implicit grant explicit. It never widens what an extension may reach, and
+    /// a private page's host never reaches an extension not allowed in private browsing.
+    func grantExtensionAccessToURL(_ url: URL, private isPrivate: Bool) {
+        guard let scheme = url.scheme?.lowercased(), ["http", "https"].contains(scheme),
+              let host = url.host
+        else { return }
+
+        let originPattern: WKWebExtension.MatchPattern? = {
+            let hostPort = url.port.map { "\(host):\($0)" } ?? host
+            return try? WKWebExtension.MatchPattern(string: "\(scheme)://\(hostPort)/*")
+        }()
+
+        for ctx in extensionContexts.values where ctx.isLoaded && (!isPrivate || ctx.hasAccessToPrivateData) {
+            switch ctx.permissionStatus(for: url) {
+            case .grantedExplicitly, .grantedImplicitly, .deniedExplicitly:
+                continue
+            default:
+                break
+            }
+            let covered = ctx.grantedPermissionMatchPatterns.keys.contains { pattern in
+                if pattern.matchesAllURLs { return true }
+                // `<all_urls>`-style host wildcards did not always match IP-address hosts.
+                if pattern.matchesAllHosts, let s = pattern.scheme, s == "*" || s == scheme { return true }
+                return pattern.matches(url)
+            }
+            guard covered else { continue }
+            ctx.setPermissionStatus(.grantedExplicitly, for: url)
+            if let originPattern {
+                ctx.setPermissionStatus(.grantedExplicitly, for: originPattern)
+            }
+        }
+    }
+
+    // MARK: - Extension Command Forwarding
+
+    /// Forward a keyboard event to all extension contexts to handle chrome.commands shortcuts.
+    /// Returns true if any extension consumed the event.
+    func tryPerformExtensionCommand(for event: NSEvent) -> Bool {
+        for ctx in extensionContexts.values where ctx.isLoaded {
+            if ctx.performCommand(for: event) {
+                return true
+            }
+        }
+        return false
+    }
+
+    // MARK: - Background Worker Lifecycle
+
+    /// Wake all MV3 background service workers so they can process the current page.
+    /// MV3 workers auto-terminate after ~5 min of inactivity. Waking them on navigation
+    /// and tab activation ensures content script messages reach a live worker for features
+    /// like autofill detection and badge count updates.
+    func wakeBackgroundWorkers() {
+        for ctx in extensionContexts.values where ctx.isLoaded {
+            guard ctx.webExtension.hasBackgroundContent else { continue }
+            ctx.loadBackgroundContent { error in
+                if let error {
+                    Self.logger.debug("Background wake failed: \(error.localizedDescription, privacy: .public)")
+                }
+            }
+        }
+    }
+
+    /// Register a UI anchor view for an extension action button to position popovers.
+    func setActionAnchor(for extensionId: String, anchorView: NSView) {
+        var anchors = actionAnchors[extensionId] ?? []
+        anchors.removeAll { $0.view == nil }
+        if !anchors.contains(where: { $0.view === anchorView }) { anchors.append(WeakAnchor(view: anchorView)) }
+        actionAnchors[extensionId] = anchors
+    }
+}

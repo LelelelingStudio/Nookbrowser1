@@ -1,5 +1,5 @@
 // Licensed under GPL-3.0. See LICENSE.
-// swiftc Nook/Managers/DownloadManager/DownloadTidier.swift scripts/tests/DownloadTidyGateCheck.swift -o /tmp/dlgate && /tmp/dlgate
+// swiftc LeleleBrowser/Managers/DownloadManager/DownloadTidier.swift scripts/tests/DownloadTidyGateCheck.swift -o /tmp/dlgate && /tmp/dlgate
 
 @main
 struct DownloadTidyGateCheck {
@@ -17,8 +17,8 @@ struct DownloadTidyGateCheck {
         }
         precondition(name("Navan Itinerary", "387494876.pdf") == "Navan Itinerary.pdf")
         // Version numbers and compound extensions survive; the model's own extension is dropped.
-        precondition(name("Nook 1.3.0", "Nook-1.3.0.dmg") == "Nook 1.3.0.dmg")
-        precondition(name("Nook 1.3.0.dmg", "a8f3c2e1.dmg") == "Nook 1.3.0.dmg")
+        precondition(name("Lelele Browser 1.3.0", "Lelele Browser-1.3.0.dmg") == "Lelele Browser 1.3.0.dmg")
+        precondition(name("Lelele Browser 1.3.0.dmg", "a8f3c2e1.dmg") == "Lelele Browser 1.3.0.dmg")
         precondition(name("Backup May", "backup.tar.gz") == "Backup May.tar.gz")
         // Arc's guard: empty or dot-prefixed is refused, not repaired.
         precondition(name("", "1234567.pdf") == nil)
@@ -41,7 +41,7 @@ struct DownloadTidyGateCheck {
                       "3F2504E0-4F89-11D3-9A0C-0305E82C3301.zip", "untitled.txt"] {
             precondition(DownloadTidier.isMessy(messy), messy)
         }
-        for tidy in ["Q3 Budget.xlsx", "Nook-1.3.0.dmg", "backup.tar.gz", "Swift Book.epub", "resume.pdf"] {
+        for tidy in ["Q3 Budget.xlsx", "Lelele Browser-1.3.0.dmg", "backup.tar.gz", "Swift Book.epub", "resume.pdf"] {
             precondition(!DownloadTidier.isMessy(tidy), tidy)
         }
         print("DownloadTidyGateCheck passed")

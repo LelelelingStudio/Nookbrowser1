@@ -1,12 +1,12 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  ExtensionPackageOriginCheck.swift
-//  Nook
+//  LeleleBrowser
 //
 //  A package installed before stable IDs is traced to its store listing from its own files.
 //  Compiles the shipped source directly:
 //
-//    swiftc Nook/Managers/ExtensionManager/ExtensionPackageOrigin.swift \
+//    swiftc LeleleBrowser/Managers/ExtensionManager/ExtensionPackageOrigin.swift \
 //           scripts/tests/ExtensionPackageOriginCheck.swift \
 //           -o /tmp/extension-origin-check && /tmp/extension-origin-check
 //
@@ -15,7 +15,7 @@ import Foundation
 
 @main
 struct ExtensionPackageOriginCheck {
-    static let root = FileManager.default.temporaryDirectory.appendingPathComponent("nook-origin-check-\(UUID().uuidString)")
+    static let root = FileManager.default.temporaryDirectory.appendingPathComponent("lelele-origin-check-\(UUID().uuidString)")
 
     /// A package folder with this manifest and, when `item` is given, the store's signed file naming it.
     static func package(_ name: String, manifest: [String: Any], item: Any? = nil, rawMetadata: String? = nil) -> URL {

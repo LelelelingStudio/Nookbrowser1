@@ -3,7 +3,7 @@
 # gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 sessions-config.json
 .claude
-Nook/.claude
+LeleleBrowser/.claude
 .crush
 /sessions
 AGENTS.md
@@ -129,10 +129,11 @@ DerivedData/
 .repowise/
 
 # Rust FFI build output
-Nook/ThirdParty/AdblockRustFFI/target/
+LeleleBrowser/ThirdParty/AdblockRustFFI/target/
 build-release/
 build-verify/
 build-release-signed/
+artifacts/
 
 # Everything under docs/ stays local: designs, specs, reviews, handoffs, working
 # notes. adblocker-architecture.md is the one committed doc.
@@ -145,5 +146,5 @@ build-ios/
 
 # Local maintainer notes
 CLAUDE.md
-Nook/Managers/ExtensionManager/CLAUDE.md
+LeleleBrowser/Managers/ExtensionManager/CLAUDE.md
 ASSESSMENT.md

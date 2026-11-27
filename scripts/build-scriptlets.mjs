@@ -1,4 +1,4 @@
-// Generates Packages/NookBlocker/Sources/NookBlocker/Resources/scriptlets.json
+// Generates Packages/LeleleBrowserBlocker/Sources/LeleleBrowserBlocker/Resources/scriptlets.json
 // from the vendored uBlock Origin resources. Run after refreshing the pin:
 //   node scripts/build-scriptlets.mjs
 //
@@ -12,9 +12,9 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 const root = path.dirname(fileURLToPath(new URL('.', import.meta.url)));
-const uboSrc = path.join(root, 'Packages/NookBlocker/ThirdParty/ubo-scriptlets/src');
+const uboSrc = path.join(root, 'Packages/LeleleBrowserBlocker/ThirdParty/ubo-scriptlets/src');
 const resourceDir = path.join(uboSrc, 'js/resources');
-const out = path.join(root, 'Packages/NookBlocker/Sources/NookBlocker/Resources/scriptlets.json');
+const out = path.join(root, 'Packages/LeleleBrowserBlocker/Sources/LeleleBrowserBlocker/Resources/scriptlets.json');
 
 const { registeredScriptlets } = await import(path.join(resourceDir, 'base.js'));
 for (const file of readdirSync(resourceDir).filter(f => f.endsWith('.js') && f !== 'base.js')) {

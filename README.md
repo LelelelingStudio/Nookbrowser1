@@ -1,155 +1,99 @@
 <div align="center">
-  <img width="230" height="230" src="/assets/icon.png" alt="Nook Logo">
-  <h1><b>Nook</b></h1>
-  <p>
-    A fast, minimal browser with a sidebar-first design for macOS.
-    <br>
-  </p>
+  <img width="230" height="230" src="/assets/lelele-browser-1024.png" alt="Lelele Browser Logo">
+  <h1><b>Lelele Browser</b></h1>
+  <p>A fast, minimal, sidebar-first browser for macOS.<br>快速、简洁、侧边栏优先的 macOS 浏览器。</p>
 </div>
 
 <p align="center">
   <a href="https://www.apple.com/macos/"><img src="https://img.shields.io/badge/macOS-15.5+-blue" alt="macOS 15.5+"></a>
   <a href="https://swift.org/"><img src="https://img.shields.io/badge/Swift-5-orange" alt="Swift"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-green" alt="GPL-3.0"></a>
-  <a href="https://github.com/nook-browser/Nook/pulls"><img src="https://img.shields.io/github/issues-pr/nook-browser/Nook" alt="Open pull requests"></a>
-  <a href="https://github.com/nook-browser/Nook/issues"><img src="https://img.shields.io/github/issues/nook-browser/Nook" alt="Open issues"></a>
-  <a href="https://github.com/nook-browser/Nook/graphs/contributors"><img src="https://img.shields.io/github/contributors/nook-browser/Nook" alt="Contributors"></a>
+  <a href="https://leleleling.site"><img src="https://img.shields.io/badge/site-leleleling.site-blue" alt="leleleling.site"></a>
 </p>
 
+> **Status:** Lelele Browser is a personal fork based on Nook 1.7.0. Branding, bundle IDs, URL scheme, resources and documentation have been replaced. Releases will be published at `leleleling.site` once signing and update infrastructure are ready.
 
-<p align="center">
-  <a href="https://github.com/nook-browser/Nook/releases/latest"><img src="https://img.shields.io/github/v/release/nook-browser/Nook?label=release" alt="Latest release"></a>
-</p>
+## Features
 
-<p align="center">
-  <a href="https://github.com/nook-browser/Nook/releases/latest"><img src="https://img.shields.io/badge/Download%20for-macOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Download for macOS"></a>
-</p>
+- **Sidebar-first navigation** — vertical tabs, spaces, pinned tabs and archives.
+- **Localization** — follows the system language, with manual **Follow System / English / 简体中文** override in Settings.
+- **Memory Saver** — aggressively unloads inactive tabs, with a one-click **Unload All Inactive Tabs** action and memory-pressure handling.
+- **Built-in content blocking** — filter lists, cosmetic rules, site tweaks and SponsorBlock.
+- **Extensions, downloads, history and command palette** — a complete daily-driver browser core.
+- **Launcher support** — drive the browser with `lelele://` links.
+- **WebKit-based** — uses the system `WKWebView`, not a bundled Chromium engine.
 
-> **Status:** Development started back up in September 2026 under a new maintainer. See [Releases](https://github.com/nook-browser/Nook/releases) for the current download.
+## Language / 语言
 
-## Features  
+Lelele Browser uses English as the source language. Interface text resolves in this order:
 
--  **Sidebar-first navigation** – vertical tabs that feel natural and uncluttered.
--  **Performance** – optimized with modern macOS APIs for speed and low memory use.  
--  **Minimal, modern UI** – focused on content, not chrome.  
+1. The language chosen in **Settings → Language**.
+2. The system preferred language when set to **Follow System**.
+3. English fallback for any untranslated string.
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot-dark.png">
-    <img src="assets/screenshot-light.png" alt="Nook screenshot">
-  </picture>
-</p>
-
-## Performance
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/benchmark-dark.svg">
-    <img src="assets/benchmark-light.svg" alt="Nook uses 2.0 GB and 34 mW with 16 tabs open, against 2.5 to 4.4 GB and 41 to 163 mW for Safari, Zen, Firefox, Chrome, Arc and Dia. Nook launches in 0.54 s; Chrome is fastest at 0.39 s.">
-  </picture>
-</p>
-
+Currently translated: English and Simplified Chinese. Adding a language means adding an `.lproj` folder to `Packages/LeleleBrowserSettings/Sources/LeleleBrowserSettings/Resources/` and wrapping user-facing strings with `L("...")`.
 
 ## Launchers
 
-Raycast, Alfred and scripts can drive Nook with `nook://` links. They are off until you turn on Allow nook:// links in Settings > Links.
+Raycast, Alfred and scripts can use `lelele://` links. Enable **Allow lelele:// links** in Settings → Links first.
 
-- Open a page: `open "nook://open?url=https://example.com&space=Work&reuse=1"` (`space` and `reuse` are optional; `reuse=1` selects a tab that already shows the page)
-- Search: `open "nook://search?q=swift%20concurrency&space=Work"`
-- Switch space: `open "nook://space?name=Work"`
+- Open a page: `open "lelele://open?url=https://example.com&space=Work&reuse=1"`
+- Search: `open "lelele://search?q=swift%20concurrency&space=Work"`
+- Switch space: `open "lelele://space?name=Work"`
 
-A space is matched by its exact name (any case) or its UUID. Only `http` and `https` pages open.
+Spaces match by exact name (case-insensitive) or UUID. Only `http` and `https` pages open.
 
-## Getting Started  
+## Build from source
 
-### Download
-[![Download for macOS](https://img.shields.io/badge/Download%20for-macOS-000000?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/nook-browser/Nook/releases/latest)
+### Prerequisites
 
-### or, Build from Source
+- macOS 15.6 or later, Apple Silicon
+- Xcode 26 or later with the Metal Toolchain component
+- A personal Development Team for local signing
+- On-device AI features require macOS 26 with Apple Intelligence
 
-#### Prerequisites  
-- macOS 15.6 (Sequoia) or later, Apple Silicon. Xcode 26 needs 15.6; the built app runs on 15.5 and later
-- On-device AI chat and Tab Organizer require macOS 26 or later with Apple Intelligence enabled
-- [Xcode](https://developer.apple.com/xcode/) 26 or later, with the Metal Toolchain component (Xcode 26 no longer bundles it)
 ```bash
-git clone https://github.com/nook-browser/Nook.git
-cd Nook
+git clone https://github.com/LelelelingStudio/LeleleBrowser.git
+cd LeleleBrowser
 xcodebuild -downloadComponent MetalToolchain
-open Nook.xcodeproj
+open LeleleBrowser.xcodeproj
 ```
 
-Nook builds for Apple Silicon only: the bundled adblock-rust framework ships an arm64 slice and nothing else. Xcode resolves the Swift packages on open.
+Set your Development Team under **Signing & Capabilities**, then press `Cmd + R`.
 
-You’ll need to set your personal Development Team in Signing to build locally.
+To build without a signing team:
 
-## Project Structure
-
-```
-Nook/
-├── App/                       # Entry point, AppDelegate, window scene, menu commands
-├── Packages/                  # Local Swift packages shared with the planned iOS port
-│   ├── NookTabsCore/          # Tab tree model: spaces, items, ordering, on-disk store
-│   ├── NookSettings/          # Settings service and every persisted value type
-│   ├── NookDesign/            # Design tokens: radii, spacing, type, motion, surfaces
-│   ├── NookBlocker/           # Content blocker: filter lists, adblock-rust conversion, cosmetic engine
-│   ├── NookTweaks/            # Site tweaks: YouTube, Facebook, social downloads, SponsorBlock, routing
-│   ├── NookWeb/               # Tabs controller, page sessions, windows, history, favicons, search
-│   └── NookUI/                # Shared SwiftUI: rows, context menus, spaces list, toasts, settings tabs
-├── Nook/
-│   ├── Managers/              # Feature managers (macOS side)
-│   │   ├── BrowserManager/    # Central coordinator; conforms to the package seams
-│   │   ├── ExtensionManager/  # WKWebExtension support
-│   │   ├── AIManager/         # AI chat providers, MCP client, browser tools
-│   │   ├── DevMCPServer/      # Local MCP server for driving the app from a coding agent
-│   │   ├── TabOrganizerManager/ # On-device tab grouping with Apple Intelligence
-│   │   ├── WebViewCoordinator/  # Web view pool for multi-window display
-│   │   ├── DownloadManager/   # File downloads
-│   │   ├── DialogManager/     # Modal dialogs
-│   │   ├── PeekManager/       # Quick preview overlay
-│   │   ├── SplitViewManager/  # Split-screen tab viewing
-│   │   └── ...
-│   ├── Models/                # macOS-only models and SwiftData entities
-│   ├── Components/            # SwiftUI views: sidebar, website view, settings, drag and drop, dialogs
-│   ├── Browser/               # macOS-only slice of the tab controller
-│   ├── Utils/                 # WebKit helpers and utilities
-│   └── ThirdParty/            # adblock-rust FFI crate and other embedded dependencies
-├── CommandPalette/            # Command palette UI
-├── Navigation/                # Sidebar structure: header, bottom bar, spaces list
-├── Onboarding/                # First-run flow
-├── NookiOS/                   # iOS app target, not released yet
-├── UI/                        # Shared buttons and controls
-├── docs/                      # Ad blocker architecture notes
-├── scripts/                   # Filter list refresh, scriptlet and redirect generators, checks
-└── assets/                    # Static assets
+```bash
+xcodebuild -scheme LeleleBrowser -configuration Debug -arch arm64 \
+  -derivedDataPath build \
+  CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 ```
 
-### Architecture Overview
+## Project structure
 
-Nook follows a manager-based architecture where:
-- **Managers** handle business logic and coordinate between different parts of the app
-- **Models** represent data and state using Swift's `@Observable` macro
-- **Components** are SwiftUI views that reactively update based on model changes
-- **BrowserManager** acts as the central coordinator, connecting all managers together
-- **Packages** hold the model, blocker, tweak and shared view code that has no AppKit dependency, so it can be reused by an iOS app
+```
+App/                     macOS entry point, window, menus, delegate
+LeleleBrowser/           macOS managers, components, resources, entitlements
+Packages/
+  LeleleBrowserTabsCore  Tab tree, spaces, on-disk store
+  LeleleBrowserSettings  Settings service, language selection, localization resources
+  LeleleBrowserDesign    Design tokens
+  LeleleBrowserBlocker   Content blocker and FFI wrapper
+  LeleleBrowserTweaks    Site tweaks, SponsorBlock, routing
+  LeleleBrowserWeb       Tabs, page sessions, history, search, WebKit seams
+  LeleleBrowserUI        Shared SwiftUI views and settings tabs
+LeleleBrowseriOS/        iOS target, not released yet
+Navigation/              Sidebar structure
+Onboarding/              First-run flow
+CommandPalette/          Command palette
+UI/                      Shared controls
+scripts/                 Filter list, scriptlet and check tooling
+```
 
+The app uses a manager-based architecture. `BrowserManager` is the central coordinator while the `Packages/` modules hold platform-independent model and view code.
 
----
+## License
 
-<div align="center">
+Lelele Browser is free software under [GPL-3.0](./LICENSE), inherited from its upstream. You may use, modify and distribute it, including commercially, provided you comply with the GPL when you convey copies.
 
-## Star History
-
-<a href="https://www.star-history.com/#nook-browser/nook&type=date&legend=bottom-right">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=nook-browser/nook&type=date&theme=dark&legend=bottom-right" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=nook-browser/nook&type=date&legend=bottom-right" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=nook-browser/nook&type=date&legend=bottom-right" width="600" />
- </picture>
-</a>
-
-</div>
-
----
-
-### LICENSES
-With the exception of third-party libraries in Nook/ThirdParty, all code is under the GPL 3.0 License. The relevant third-party code is licensed per-folder under a variety of free, open-source software licenses.
+See [NOTICE.md](./NOTICE.md) for upstream attribution and third-party license details. See [TRADEMARK.md](./TRADEMARK.md) for the separate trademark policy; the Lelele Browser name and icon are not covered by the code license.

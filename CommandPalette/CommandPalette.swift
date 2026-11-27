@@ -1,7 +1,7 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  CommandPalette.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Per-window command palette state and actions
 //

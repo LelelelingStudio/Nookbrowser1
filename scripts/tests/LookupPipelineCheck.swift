@@ -1,13 +1,13 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  LookupPipelineCheck.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Look It Up's pipeline against a stub model and a stub reader: what it writes and when, which
 //  pages go to a reader page, and how it ends when the model fails, nothing is found or the
 //  person stops it.
 //
-//    L=Packages/NookWeb/Sources/NookWeb/Lookup; M=Nook/Managers/LookupManager
+//    L=Packages/LeleleBrowserWeb/Sources/LeleleBrowserWeb/Lookup; M=LeleleBrowser/Managers/LookupManager
 //    swiftc $L/LookupModels.swift $L/LookupText.swift $L/LookupSearch.swift $L/LookupVerify.swift $L/LookupTimes.swift \
 //           $L/BookingSites.swift $L/LookupPageRenderer.swift $L/LookupStore.swift $M/LookupModel.swift $M/LookupPipeline.swift \
 //           scripts/tests/LookupPipelineCheck.swift -o /tmp/lookup-pipeline && /tmp/lookup-pipeline

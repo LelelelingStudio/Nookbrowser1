@@ -1,7 +1,7 @@
 // Licensed under GPL-3.0. See LICENSE.
 //
 //  TransitionView.swift
-//  Nook
+//  LeleleBrowser
 //
 //  Created by Maciek Bagiński on 17/02/2026.
 //

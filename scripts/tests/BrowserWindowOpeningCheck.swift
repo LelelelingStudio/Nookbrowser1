@@ -3,19 +3,19 @@
 // Links the actual Debug app module and runs in a disposable app bundle and data directory.
 
 import AppKit
-import NookSettings
-import NookWeb
-@testable import Nook
+import LeleleBrowserSettings
+import LeleleBrowserWeb
+@testable import LeleleBrowser
 
 @main
 struct BrowserWindowOpeningCheck {
     @MainActor
     static func main() async throws {
-        precondition(Bundle.main.bundleIdentifier?.hasPrefix("com.nook.window-check.") == true,
+        precondition(Bundle.main.bundleIdentifier?.hasPrefix("com.lelele.window-check.") == true,
                      "Run through check-browser-windows.py to isolate application data")
 
         let app = NSApplication.shared
-        let settings = NookSettingsService()
+        let settings = LeleleBrowserSettingsService()
         let registry = WindowRegistry()
         let manager = BrowserManager(settings: settings, windowRegistry: registry)
         let coordinator = WebViewCoordinator()
@@ -28,7 +28,7 @@ struct BrowserWindowOpeningCheck {
 
         precondition(settings.externalLinksInMiniWindow, "New and upgrading users default to mini windows")
         settings.externalLinksInMiniWindow = false
-        precondition(!NookSettingsService().externalLinksInMiniWindow, "The external-link preference must persist")
+        precondition(!LeleleBrowserSettingsService().externalLinksInMiniWindow, "The external-link preference must persist")
         settings.externalLinksInMiniWindow = true
 
         app.setActivationPolicy(.prohibited)
@@ -120,7 +120,7 @@ struct BrowserWindowOpeningCheck {
         manager.externalMiniWindowManager.present(url: stickyURL)
 
         let stickyMini = app.windows.compactMap { $0 as? MiniBrowserWindow }.first { $0.isVisible }!
-        let openItem = stickyMini.toolbar!.items.first { $0.itemIdentifier.rawValue == "com.nook.miniwindow.openInSpace" }!
+        let openItem = stickyMini.toolbar!.items.first { $0.itemIdentifier.rawValue == "com.lelele.miniwindow.openInSpace" }!
 
         precondition(openItem.title == "Open in \(originalSpaceName)")
         manager.tabs.setSpace(otherSpace, in: source)

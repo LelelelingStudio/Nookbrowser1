@@ -1,22 +1,22 @@
-// Nook extension compatibility shim: runs first in every context of a store-built extension.
-// Edit scripts/extension-compat/shim.js and run scripts/build-extension-compat.mjs; the copy under Nook/ is generated.
+// LeleleBrowser extension compatibility shim: runs first in every context of a store-built extension.
+// Edit scripts/extension-compat/shim.js and run scripts/build-extension-compat.mjs; the copy under LeleleBrowser/ is generated.
 (function () {
   'use strict';
   var g = globalThis;
   // Only where the extension's own code runs: its pages, its worker, its isolated content scripts.
-  if (g.__nookCompat || !(g.chrome && g.chrome.runtime && g.chrome.runtime.id)) return;
+  if (g.__leleleCompat || !(g.chrome && g.chrome.runtime && g.chrome.runtime.id)) return;
   // WebKit rebuilds a namespace object nothing refers to, without what was added to it. Each patched one is kept here.
-  var keep = g.__nookCompat = [];
-  var IDENTITY = '__NOOK_IDENTITY__';
+  var keep = g.__leleleCompat = [];
+  var IDENTITY = '__LELELE_IDENTITY__';
   var inExtensionOrigin = !!g.location && /-extension:$/.test(g.location.protocol);
-  // Nook's own native messaging application: the delegate answers it, and no host process carries the name.
-  var BRIDGE = 'com.gstudios.nook.compat';
-  // True when nativeMessaging is in the manifest only because Nook put it there for this channel.
-  var OWNS_CHANNEL = '__NOOK_OWNS_CHANNEL__' === 'true';
-  // True when Nook put this shim in the extension's background too.
-  var BACKGROUND_SHIM = '__NOOK_BACKGROUND_SHIM__' === 'true';
-  // Package paths of the scripts that hold nothing, which Nook lists when it patches the package.
-  var EMPTY_SCRIPTS = (function (list) { try { return JSON.parse(list); } catch (e) { return []; } })('__NOOK_EMPTY_SCRIPTS__');
+  // LeleleBrowser's own native messaging application: the delegate answers it, and no host process carries the name.
+  var BRIDGE = 'com.leleleling.browser.compat';
+  // True when nativeMessaging is in the manifest only because LeleleBrowser put it there for this channel.
+  var OWNS_CHANNEL = '__LELELE_OWNS_CHANNEL__' === 'true';
+  // True when LeleleBrowser put this shim in the extension's background too.
+  var BACKGROUND_SHIM = '__LELELE_BACKGROUND_SHIM__' === 'true';
+  // Package paths of the scripts that hold nothing, which LeleleBrowser lists when it patches the package.
+  var EMPTY_SCRIPTS = (function (list) { try { return JSON.parse(list); } catch (e) { return []; } })('__LELELE_EMPTY_SCRIPTS__');
 
   function message(e) { return String((e && e.message) || e); }
   // A worker, or an MV2 background page.
@@ -40,7 +40,7 @@
     event.removeListener = function (f) { var i = index(f); return i < 0 ? undefined : remove.call(event, pairs.splice(i, 1)[0][1]); };
     event.hasListener = function (f) { return index(f) >= 0; };
     // The shim's own listeners are not the extension's.
-    event.hasListeners = function () { return pairs.some(function (p) { return !p[0].nookLink; }); };
+    event.hasListeners = function () { return pairs.some(function (p) { return !p[0].leleleLink; }); };
   }
 
   // An event nothing in WebKit ever fires. Listeners register and stay silent.
@@ -62,7 +62,7 @@
   }
 
   // The same for a promise that settles later. A failure reaches a callback with runtime.lastError set, as in Chrome.
-  // Only WebKit can set that, so the callback rides on a native message Nook answers with the failure.
+  // Only WebKit can set that, so the callback rides on a native message LeleleBrowser answers with the failure.
   function settle(root, args, promise) {
     var cb = args.length && typeof args[args.length - 1] === 'function' ? args[args.length - 1] : null;
     if (!cb) return promise;
@@ -110,17 +110,17 @@
     };
   }
 
-  // The channel to Nook. Requests are single native messages; events arrive on one port per context.
+  // The channel to LeleleBrowser. Requests are single native messages; events arrive on one port per context.
   var send = null, fail = null, connect = null, port = null, events = {}, announcing = false, background = false;
   function channel(root) {
     var runtime = root.runtime;
     if (!inExtensionOrigin || typeof runtime.sendNativeMessage !== 'function') return;
     keep.push(runtime);
-    // WebKit may stop a background, and Nook then remembers what it listened for.
+    // WebKit may stop a background, and LeleleBrowser then remembers what it listened for.
     background = inBackground(root);
     var sendNative = runtime.sendNativeMessage, connectNative = runtime.connectNative;
     send = function (request) { return sendNative.call(runtime, BRIDGE, request); };
-    fail = function (text, callback) { sendNative.call(runtime, BRIDGE, { api: 'nook', method: 'fail', args: [text] }, callback); };
+    fail = function (text, callback) { sendNative.call(runtime, BRIDGE, { api: 'lelele', method: 'fail', args: [text] }, callback); };
     connect = function () { return connectNative.call(runtime, BRIDGE); };
   }
   function native(api, method, args) {
@@ -131,7 +131,7 @@
       return reply && reply.result !== null ? reply.result : undefined;
     });
   }
-  // A function Nook implements. A trailing callback stays here; the other arguments go over the channel.
+  // A function LeleleBrowser implements. A trailing callback stays here; the other arguments go over the channel.
   function nativeFunction(root, api, method) {
     return function () {
       var args = Array.prototype.slice.call(arguments);
@@ -139,7 +139,7 @@
       return settle(root, arguments, native(api, method, args));
     };
   }
-  // An event Nook fires. The port opens with the first listener and tells Nook what this context listens for.
+  // An event LeleleBrowser fires. The port opens with the first listener and tells LeleleBrowser what this context listens for.
   function nativeEvent(name) {
     if (events[name]) return events[name].event;
     var listeners = [];
@@ -172,12 +172,12 @@
     });
   }
 
-  // Nook put nativeMessaging in the manifest for the channel. The extension is answered as its own manifest reads.
+  // LeleleBrowser put nativeMessaging in the manifest for the channel. The extension is answered as its own manifest reads.
   function ownChannel(root) {
     var permissions = root.permissions, NAME = 'nativeMessaging';
     if (!OWNS_CHANNEL || !send || !permissions) return;
     // runtime.sendNativeMessage and connectNative stay visible: WebKit lets nothing replace a member of `runtime`
-    // (measured). Nook refuses every host but its own for such an extension.
+    // (measured). LeleleBrowser refuses every host but its own for such an extension.
     keep.push(permissions);
     var original = { getAll: permissions.getAll, contains: permissions.contains, request: permissions.request, remove: permissions.remove };
     function asks(query) { return !!query && Array.isArray(query.permissions) && query.permissions.indexOf(NAME) >= 0; }
@@ -187,17 +187,17 @@
       return others.length || (query.origins && query.origins.length) ? Object.assign({}, query, { permissions: others }) : null;
     }
     permissions.getAll = function () {
-      return settle(root, arguments, Promise.all([original.getAll.call(permissions), native('nook', 'nativeMessagingGranted')]).then(function (found) {
+      return settle(root, arguments, Promise.all([original.getAll.call(permissions), native('lelele', 'nativeMessagingGranted')]).then(function (found) {
         var all = Object.assign({}, found[0]);
         all.permissions = (all.permissions || []).filter(function (p) { return p !== NAME || found[1]; });
         return all;
       }));
     };
-    // Each of the three asks Nook about nativeMessaging and WebKit about whatever else the query holds.
+    // Each of the three asks LeleleBrowser about nativeMessaging and WebKit about whatever else the query holds.
     [['contains', 'nativeMessagingGranted'], ['request', 'requestNativeMessaging'], ['remove', 'removeNativeMessaging']].forEach(function (pair) {
       permissions[pair[0]] = function (query) {
         if (!asks(query)) return original[pair[0]].apply(permissions, arguments);
-        return settle(root, arguments, native('nook', pair[1]).then(function (yes) {
+        return settle(root, arguments, native('lelele', pair[1]).then(function (yes) {
           var others = rest(query);
           return yes && others ? original[pair[0]].call(permissions, others) : !!yes;
         }));
@@ -205,7 +205,7 @@
     });
   }
 
-  // A store build asks which browser it is in. Under Nook's Safari user agent it takes paths its package was never tested on.
+  // A store build asks which browser it is in. Under LeleleBrowser's Safari user agent it takes paths its package was never tested on.
   function identity() {
     var chrome = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/__CHROME_MAJOR__.0.0.0 Safari/537.36';
     var ua = {
@@ -257,7 +257,7 @@
   // Chrome holds a content script's message until the worker has started. WebKit answers it at once with nothing while
   // the worker has no listener yet, as on its first run after an install or an update. So a content script's first
   // message waits until the worker's shim answers a question no listener of the extension's ever sees.
-  var PING = '__nookCompatPing', gated = false;
+  var PING = '__leleleCompatPing', gated = false;
   function startup(root) {
     var runtime = root.runtime;
     if (gated || !runtime.onMessage || typeof runtime.onMessage.addListener !== 'function') return;
@@ -429,7 +429,7 @@
           });
         }
         var done = attempt(0).then(function (value) {
-          if (dropped) console.warn('[Nook] declarativeNetRequest.' + name + ': ' + dropped + ' rules left out, WebKit does not support them');
+          if (dropped) console.warn('[LeleleBrowser] declarativeNetRequest.' + name + ': ' + dropped + ' rules left out, WebKit does not support them');
           return value;
         });
         if (typeof callback !== 'function') return done;
@@ -439,7 +439,7 @@
     });
   }
 
-  // Namespaces Nook implements natively, each for an extension whose manifest asks for it. Nook checks the same thing.
+  // Namespaces LeleleBrowser implements natively, each for an extension whose manifest asks for it. LeleleBrowser checks the same thing.
   function bridged(root, T) {
     if (!send) return;
     var declared = root.runtime.getManifest().permissions || [];
@@ -463,7 +463,7 @@
     Object.keys(T.bridgedEvents).forEach(function (path) {
       if (declared.indexOf(T.bridgedEvents[path]) >= 0) add(root, path, function () { return tabEvent(root, path); });
     });
-    // runtime.getContexts answers for the offscreen document, the one context only Nook knows of.
+    // runtime.getContexts answers for the offscreen document, the one context only LeleleBrowser knows of.
     if (root.offscreen && T.bridged.offscreen) {
       windowlessTabs(root);
       workerClients(root);
@@ -512,7 +512,7 @@
     });
   }
 
-  // An event Nook fires about a tab names the tab by address and place: WebKit keeps its tab ids to itself.
+  // An event LeleleBrowser fires about a tab names the tab by address and place: WebKit keeps its tab ids to itself.
   // WebKit's own tabs.onUpdated for the same change carries the id, and the two are paired by address.
   var tabWatch = null;
   function tabIds(root) {
@@ -576,7 +576,7 @@
     };
   }
 
-  // WebKit routes runtime messages to the offscreen document only as a tab, so Nook announces it as one that sits in
+  // WebKit routes runtime messages to the offscreen document only as a tab, so LeleleBrowser announces it as one that sits in
   // no window. The extension must not see that tab: its tab events are dropped, and its messages carry no sender.tab.
   function windowlessTabs(root) {
     function windowless(info) { return !!info && info.windowId === -1; }
@@ -599,8 +599,8 @@
     rewire(root.runtime.onConnect, function (f, args) {
       var port = args[0];
       // The link to the worker is the shim's own port.
-      if (isLink(port)) return f.nookLink ? f.apply(this, args) : undefined;
-      if (f.nookLink) return undefined;
+      if (isLink(port)) return f.leleleLink ? f.apply(this, args) : undefined;
+      if (f.leleleLink) return undefined;
       try { if (port && windowless(port.sender && port.sender.tab)) delete port.sender.tab; } catch (e) {}
       return f.apply(this, args);
     });
@@ -609,7 +609,7 @@
   // WebKit connects no extension page to the extension's service worker: clients.matchAll() is empty in the worker and
   // ServiceWorker.postMessage from a page arrives nowhere. Both run over one runtime port: the offscreen document's
   // from its start, as the worker's client, and any other page's from the first message it posts.
-  var LINK = 'nook.compat.worker', PAGE_LINK = LINK + '.page', SHOWN_LINK = LINK + '.shown';
+  var LINK = 'lelele.compat.worker', PAGE_LINK = LINK + '.page', SHOWN_LINK = LINK + '.shown';
   function isLink(port) { return !!port && (port.name === LINK || port.name === PAGE_LINK || port.name === SHOWN_LINK); }
   // ponytail: messages cross as JSON, so an ArrayBuffer or a Blob does not survive, and a port sent through a port is dropped.
   function link(port, side, deliver) {
@@ -619,7 +619,7 @@
       local.onmessage = function (e) { try { port.postMessage({ to: key, data: e.data }); } catch (x) {} };
     }
     port.onMessage.addListener(function (m) {
-      if (!m || m.nook) return;
+      if (!m || m.lelele) return;
       if (m.to !== undefined) { if (ports[m.to]) ports[m.to].postMessage(m.data); return; }
       deliver(m.data, (m.ports || []).map(function (key) { var c = new MessageChannel(); relay(c.port2, key); return c.port1; }));
     });
@@ -641,7 +641,7 @@
       var url = (port.sender && port.sender.url) || '', isShown = port.name === SHOWN_LINK;
       // A build made for Chrome looks for its pages under Chrome's scheme. The offscreen document is looked up by getURL.
       if (isShown && IDENTITY !== 'firefox') url = url.replace(/^[a-z-]+:\/\/[^\/]+/, 'chrome-extension://' + root.runtime.id);
-      var client = { id: 'nook-' + (isShown ? 'page-' : 'offscreen-') + (++count), url: url, type: 'window', frameType: 'top-level', focused: isShown, visibilityState: isShown ? 'visible' : 'hidden' };
+      var client = { id: 'lelele-' + (isShown ? 'page-' : 'offscreen-') + (++count), url: url, type: 'window', frameType: 'top-level', focused: isShown, visibilityState: isShown ? 'visible' : 'hidden' };
       client.postMessage = link(port, 'w', function (data, ports) {
         var e = new MessageEvent('message', { data: data, ports: ports });
         Object.defineProperty(e, 'source', { value: client });
@@ -652,7 +652,7 @@
       // its extension's own pages closes (measured), so the page says so itself.
       if (isShown) {
         shown.push(client);
-        port.onMessage.addListener(function (m) { if (m && m.nook === 'gone') shown = shown.filter(function (c) { return c !== client; }); });
+        port.onMessage.addListener(function (m) { if (m && m.lelele === 'gone') shown = shown.filter(function (c) { return c !== client; }); });
         return;
       }
       // Of the rest only the offscreen document is listed. Another page is answered through the message's source.
@@ -661,7 +661,7 @@
       port.onDisconnect.addListener(function () { pages = pages.filter(function (c) { return c !== client; }); });
       waiting.splice(0).forEach(function (f) { f(); });
     };
-    onLink.nookLink = true;
+    onLink.leleleLink = true;
     root.runtime.onConnect.addListener(onLink);
     var matchAll = clients.matchAll, get = clients.get;
     clients.matchAll = function (options) {
@@ -670,7 +670,7 @@
         if (type !== 'window' && type !== 'all') return found;
         function all() { return found.concat(pages, shown); }
         if (pages.length || !root.offscreen) return all();
-        // A restarted worker has no link yet to a document that outlived the last one. Nook asks the document for it.
+        // A restarted worker has no link yet to a document that outlived the last one. LeleleBrowser asks the document for it.
         return native('offscreen', 'link').then(function (exists) {
           if (!exists || pages.length) return all();
           return new Promise(function (done) { waiting.push(done); setTimeout(done, 2000); }).then(all);
@@ -683,12 +683,12 @@
     };
   }
 
-  // In an extension page: what it posts to the worker goes over the link. Nook marks the offscreen document before this runs.
+  // In an extension page: what it posts to the worker goes over the link. LeleleBrowser marks the offscreen document before this runs.
   function workerLink(root) {
     var sw = g.navigator && g.navigator.serviceWorker, proto = g.ServiceWorker && g.ServiceWorker.prototype;
     if (inBackground(root) || !sw || !proto || keep.indexOf(sw) >= 0) return;
     keep.push(sw);
-    var offscreen = !!g.__nookOffscreen, post = null, active = null;
+    var offscreen = !!g.__leleleOffscreen, post = null, active = null;
     function open() {
       if (post) return post;
       var port = root.runtime.connect({ name: offscreen ? LINK : PAGE_LINK });
@@ -704,8 +704,8 @@
     proto.postMessage = function (data, transfer) { try { open()(data, transfer); } catch (e) {} };
     try { sw.getRegistration().then(function (r) { active = (r && r.active) || null; }, function () {}); } catch (e) {}
     if (!offscreen) return;
-    // Nook asks for the link again when a restarted worker looks for its document.
-    g.addEventListener('nook-relink', function () { try { open(); } catch (e) {} });
+    // LeleleBrowser asks for the link again when a restarted worker looks for its document.
+    g.addEventListener('lelele-relink', function () { try { open(); } catch (e) {} });
     // WebKit leaves `controller` null in an extension page. Chrome sets it for the offscreen document.
     var controller = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(sw), 'controller');
     if (controller && controller.get) {
@@ -723,8 +723,8 @@
       // With an offscreen document, windowlessTabs has already kept the shim's ports from the extension's listeners.
       if (keep.indexOf(event) < 0) {
         rewire(event, function (f, args) {
-          if (isLink(args[0])) return f.nookLink ? f.apply(this, args) : undefined;
-          if (!f.nookLink) return f.apply(this, args);
+          if (isLink(args[0])) return f.leleleLink ? f.apply(this, args) : undefined;
+          if (!f.leleleLink) return f.apply(this, args);
           // Nobody but the shim listens, under either name of the namespace: the port closes, as with no listener at all.
           if (!roots.some(function (r) { return r.runtime.onConnect.hasListeners(); })) { try { args[0].disconnect(); } catch (e) {} }
           return undefined;
@@ -746,7 +746,7 @@
       var visible = !leaving && (loading || doc.visibilityState === 'visible');
       if (visible === !!port) return;
       try {
-        if (!visible) { port.postMessage({ nook: 'gone' }); port.disconnect(); port = null; return; }
+        if (!visible) { port.postMessage({ lelele: 'gone' }); port.disconnect(); port = null; return; }
         port = root.runtime.connect({ name: SHOWN_LINK });
         link(port, 'p', function (data, ports) { if (sw) sw.dispatchEvent(new MessageEvent('message', { data: data, ports: ports })); });
         port.onDisconnect.addListener(function () { port = null; });
@@ -759,7 +759,7 @@
   }
 
   // What Chrome defines and WebKit lacks in the namespaces both have, and the few namespaces whose absence stops a background script at startup.
-  function tables() { return __NOOK_TABLES__; }
+  function tables() { return __LELELE_TABLES__; }
   function surface(root) {
     add(root, 'storage.managed', function () {
       return { get: stubFunction('get', {}), set: stubFunction('set'), remove: stubFunction('remove'), clear: stubFunction('clear'),
@@ -802,7 +802,7 @@
       management: { getSelf: stubFunction('getSelf', self) },
       // Nothing is shown, and the extension is told so.
       notifications: {
-        create: stubFunction('create', function (id) { return typeof id === 'string' ? id : 'nook-' + Date.now(); }),
+        create: stubFunction('create', function (id) { return typeof id === 'string' ? id : 'lelele-' + Date.now(); }),
         getAll: stubFunction('getAll', {}), getPermissionLevel: stubFunction('getPermissionLevel', 'denied')
       }
     };
