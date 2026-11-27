@@ -1,5 +1,10 @@
 # Changelog
 
+## Lelele Browser 0.1.2 (2026-11-27)
+
+- Use a desktop Chrome identity (UA and client hints) in WebKit so Google sign-in no longer rejects the browser as unsupported.
+- Keep the blue onboarding theme from 0.1.1.
+
 ## Lelele Browser 0.1.1 (2026-11-27)
 
 - Replaced the onboarding backdrop and import cards with a blue technical theme.

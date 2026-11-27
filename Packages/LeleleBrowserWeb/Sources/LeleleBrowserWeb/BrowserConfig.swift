@@ -48,7 +48,25 @@ public class BrowserConfiguration {
         config.allowsAirPlayForMediaPlayback = true
         
         // User agent for better compatibility with Client Hints support
-        config.applicationNameForUserAgent = "Version/\(PlatformUserAgent.safariVersion) Safari/605.1.15"
+        #if os(macOS)
+        config.applicationNameForUserAgent = "Chrome/142.0.0.0 Safari/537.36"
+        #else
+        config.applicationNameForUserAgent = "Version/\(PlatformUserAgent.safariVersion) Mobile/15E148 Safari/604.1"
+        #endif
+
+        #if os(macOS)
+        // Google sign-in rejects bare WKWebView clients. Match the network UA with the JS-visible
+        // identity and client hints so accounts.google.com treats the page as a supported browser.
+        if let agent = PlatformUserAgent.custom {
+            config.userContentController.addUserScript(
+                WKUserScript(
+                    source: Self.chromeIdentityScript(userAgent: agent),
+                    injectionTime: .atDocumentStart,
+                    forMainFrameOnly: false
+                )
+            )
+        }
+        #endif
 
         // Clipboard, picture-in-picture, inline playback and the inspector are spelled differently
         // per platform; see BrowserConfig+macOS.swift and BrowserConfig+iOS.swift.
@@ -125,5 +143,58 @@ public class BrowserConfiguration {
             injectionTime: .atDocumentEnd,
             forMainFrameOnly: true
         )
+    }
+
+    private static func chromeIdentityScript(userAgent: String) -> String {
+        let ua = javaScriptLiteral(userAgent)
+        return """
+        (function() {
+          try {
+            Object.defineProperty(navigator, 'userAgent', {
+              configurable: true,
+              get: function() { return \(ua); }
+            });
+          } catch (e) {}
+
+          try {
+            if (!window.chrome) window.chrome = {};
+            if (!window.chrome.runtime) window.chrome.runtime = {};
+            if (!window.chrome.loadTimes) window.chrome.loadTimes = function() { return {}; };
+            if (!window.chrome.csi) window.chrome.csi = function() { return {}; };
+          } catch (e) {}
+
+          try {
+            var brands = [
+              {brand: 'Not A;Brand', version: '99'},
+              {brand: 'Chromium', version: '142'},
+              {brand: 'Google Chrome', version: '142'}
+            ];
+            Object.defineProperty(navigator, 'userAgentData', {
+              configurable: true,
+              value: {
+                brands: brands,
+                mobile: false,
+                platform: 'macOS',
+                getHighEntropyValues: function() {
+                  return Promise.resolve({
+                    architecture: 'arm',
+                    bitness: '64',
+                    model: '',
+                    platformVersion: '15.5.0',
+                    fullVersionList: brands,
+                    wow64: false
+                  });
+                }
+              }
+            });
+          } catch (e) {}
+        })();
+        """
+    }
+
+    private static func javaScriptLiteral(_ value: String) -> String {
+        guard let data = try? JSONEncoder().encode(value),
+              let literal = String(data: data, encoding: .utf8) else { return "\"\"" }
+        return literal
     }
 }

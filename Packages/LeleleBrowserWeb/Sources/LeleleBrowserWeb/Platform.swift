@@ -10,9 +10,10 @@ import CoreAudio
 let appDidBecomeActive = NSApplication.didBecomeActiveNotification
 
 public enum PlatformUserAgent {
-    /// Desktop Safari, so sites serve what they serve Safari on a Mac.
+    /// Desktop Chrome identity. Google treats a bare WKWebView as an unsupported client and
+    /// blocks sign-in; sending Chrome's UA and client hints keeps consumer sign-in flows working.
     public static let custom: String? =
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/\(safariVersion) Safari/605.1.15"
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
 
     /// The installed Safari's version, which is the system WebKit's: sites gate features on it
     /// (Google Docs at 26.4). Safari can run ahead of the OS, so the OS version is only the fallback.
