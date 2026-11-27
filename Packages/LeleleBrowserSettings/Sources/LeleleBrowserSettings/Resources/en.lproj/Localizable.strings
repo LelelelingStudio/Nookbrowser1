@@ -28,3 +28,5 @@
 "Lelele Browser always tries HTTPS first. Ask before opening a site that only works over HTTP." = "Lelele Browser always tries HTTPS first. Ask before opening a site that only works over HTTP.";
 "About" = "About";
 "Version" = "Version";
+"Transition to Lelele Browser" = "Transition to Lelele Browser";
+"Import bookmarks and history to get started." = "Import bookmarks and history to get started.";

@@ -28,3 +28,5 @@
 "Lelele Browser always tries HTTPS first. Ask before opening a site that only works over HTTP." = "Lelele Browser 总是优先尝试 HTTPS。若网站仅支持 HTTP，会先询问你。";
 "About" = "关于";
 "Version" = "版本";
+"Transition to Lelele Browser" = "迁移到 Lelele Browser";
+"Import bookmarks and history to get started." = "导入书签和历史记录，马上开始使用。";

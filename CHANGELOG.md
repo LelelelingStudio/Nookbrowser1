@@ -1,5 +1,12 @@
 # Changelog
 
+## Lelele Browser 0.1.1 (2026-11-27)
+
+- Replaced the onboarding backdrop and import cards with a blue technical theme.
+- Removed the WebAuthn feature-detection override so sites can offer passkeys through WebKit.
+- Full platform passkeys still require Apple's `com.apple.developer.web-browser.public-key-credential` entitlement in a signed build.
+- Unified the app version to 0.1.1.
+
 ## Lelele Browser 0.1.0 (2026-11-26)
 
 First rebranded build. This fork is based on Nook 1.7.0 and remains GPL-3.0.

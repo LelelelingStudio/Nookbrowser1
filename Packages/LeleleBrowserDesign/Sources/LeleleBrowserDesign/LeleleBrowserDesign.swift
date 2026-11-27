@@ -242,15 +242,15 @@ public enum LeleleBrowserDesign {
             colors: agentColors, startPoint: .topLeading, endPoint: .bottomTrailing)
         public static let agentChromeOpacity: Double = 0.45   // over the sidebar's own background
         public static let agentIconInactiveOpacity: Double = 0.4  // switcher icon while another space is open
-        /// Onboarding's fixed backdrop: the app icon's forest green as a soft mesh, lightest at the
-        /// top left. The stages draw white text on it, so it stays dark in either appearance.
+        /// Onboarding's fixed backdrop: a blue technical mesh, bright at the top left and fading
+        /// into deep navy. The stages draw white text on it, so it stays dark in either appearance.
         public static let onboardingBackdrop = MeshGradient(
             width: 3, height: 3,
             points: [[0, 0], [0.5, 0], [1, 0], [0, 0.5], [0.6, 0.45], [1, 0.5], [0, 1], [0.5, 1], [1, 1]],
             colors: [
-                Color(hex: "#6B8F72"), Color(hex: "#2C5242"), Color(hex: "#1D3A2F"),
-                Color(hex: "#2F5A47"), Color(hex: "#23463A"), Color(hex: "#16302A"),
-                Color(hex: "#13261E"), Color(hex: "#0F1F19"), Color(hex: "#0A1612"),
+                Color(hex: "#38BDF8"), Color(hex: "#0EA5E9"), Color(hex: "#1D4ED8"),
+                Color(hex: "#2563EB"), Color(hex: "#0B3D91"), Color(hex: "#071B3A"),
+                Color(hex: "#081633"), Color(hex: "#050E24"), Color(hex: "#030815"),
             ])
         public static let grainOpacity: Double = 0.08         // film grain over a fixed backdrop
         public static let themeGrainOpacity: Double = 0.4     // a space theme's noise at the knob's maximum

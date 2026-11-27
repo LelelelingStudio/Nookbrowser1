@@ -56,31 +56,11 @@ public class BrowserConfiguration {
 
         // Note: webExtensionController will be set by ExtensionManager during initialization
 
-        // MARK: Passkey suppression
-        // Pending Apple approval of com.apple.developer.web-browser.public-key-credential,
-        // tell websites we don't support platform authenticators so they won't prompt for passkeys.
-        // TODO: Remove this once the entitlement is granted.
-        let passkeySuppress = WKUserScript(
-            source: """
-            // LeleleBrowser Passkey Suppression
-            (function() {
-                if (window.PublicKeyCredential) {
-                    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable = function() {
-                        return Promise.resolve(false);
-                    };
-                    if (PublicKeyCredential.isConditionalMediationAvailable) {
-                        PublicKeyCredential.isConditionalMediationAvailable = function() {
-                            return Promise.resolve(false);
-                        };
-                    }
-                }
-            })();
-            """,
-            injectionTime: .atDocumentStart,
-            forMainFrameOnly: false
-        )
-        config.userContentController.addUserScript(passkeySuppress)
-
+        // MARK: Passkeys
+        // Do not override WebAuthn feature detection. Sites need the real capability result so
+        // Google and others can offer passkeys when WebKit/AuthenticationServices support them.
+        // Full platform authenticator support in a third-party browser still requires Apple's
+        // com.apple.developer.web-browser.public-key-credential entitlement in a signed build.
         return config
     }()
 
