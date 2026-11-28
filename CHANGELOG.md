@@ -1,5 +1,9 @@
 # Changelog
 
+## Lelele Browser 0.1.3 (2026-11-28)
+
+- Set the global accent color to Lelele tech blue so buttons, selections and controls match the new onboarding.
+
 ## Lelele Browser 0.1.2 (2026-11-27)
 
 - Use a desktop Chrome identity (UA and client hints) in WebKit so Google sign-in no longer rejects the browser as unsupported.
